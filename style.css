@@ -1,3 +1,54 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body { 
+    background-color: #050505; color: #e0e0e0; 
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6;
+    position: relative; overflow-x: hidden;
+}
+
+/* MARCA DE AGUA DIFUMINADA DE FONDO (LA 'V' DE VESTIGIO) */
+.marca-agua-fondo {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-family: 'Cinzel', serif; font-size: 35vw; font-weight: 700;
+    color: rgba(255, 255, 255, 0.015); z-index: -1; pointer-events: none; user-select: none; line-height: 1;
+}
+
+.barra-anuncio {
+    background-color: #111; color: #aaa; text-align: center;
+    padding: 8px 10px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 2px; border-bottom: 1px solid #1a1a1a;
+}
+
+.logo-texto { 
+    font-family: 'Cinzel', serif; font-weight: 700; font-size: 28px; 
+    color: #ffffff; text-decoration: none; letter-spacing: 5px; 
+}
+
+header { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 20px 50px; border-bottom: 1px solid #1a1a1a;
+    background: rgba(5, 5, 5, 0.95); position: sticky; top: 0; z-index: 100;
+}
+
+nav a { 
+    color: #888; text-decoration: none; margin-left: 25px; 
+    font-size: 12px; text-transform: uppercase; letter-spacing: 2px; transition: color 0.3s; cursor: pointer;
+}
+nav a:hover { color: #ffffff; }
+
+.hero-banner {
+    text-align: center; padding: 70px 20px;
+    background: linear-gradient(to bottom, #0a0a0a, #050505);
+    border-bottom: 1px solid #1a1a1a; margin-bottom: 30px;
+}
+.hero-banner h1 {
+    font-family: 'Cinzel', serif; font-size: 38px; color: #fff;
+    font-weight: 500; letter-spacing: 4px; margin-bottom: 15px;
+}
+.hero-banner p {
+    color: #777; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+}
+
 /* SECCIÓN DE TEMPORADA / DROP DINÁMICO */
 .contenedor-drop-mes {
     max-width: 1400px;
@@ -27,8 +78,105 @@
     font-weight: 500; letter-spacing: 3px;
 }
 
+.buscador-contenedor { text-align: center; margin-bottom: 30px; padding: 0 20px; }
+#buscadorProductos {
+    width: 100%; max-width: 450px; padding: 12px 20px;
+    border-radius: 30px; border: 1px solid #222; background: #0c0c0c;
+    color: #fff; font-size: 13px; outline: none; transition: all 0.3s ease;
+}
+#buscadorProductos:focus { border-color: #555; background: #111; }
+
+.filtros, .sub-filtros { 
+    display: flex; justify-content: center; gap: 12px; 
+    margin-bottom: 20px; flex-wrap: wrap; padding: 0 20px;
+}
+.sub-filtros { margin-bottom: 50px; }
+
+.filtro-btn, .sub-filtro-btn { 
+    background: transparent; border: 1px solid #222; color: #888; 
+    padding: 8px 18px; cursor: pointer; text-transform: uppercase; 
+    font-size: 11px; letter-spacing: 1.5px; transition: all 0.3s ease; border-radius: 3px;
+}
+.filtro-btn:hover, .sub-filtro-btn:hover { border-color: #555; color: #fff; }
+.filtro-btn.activo, .sub-filtro-btn.activo { background: #ffffff; color: #000; border-color: #ffffff; font-weight: bold; }
+
+.contenedor-productos { 
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 35px; padding: 0 50px 80px 50px; max-width: 1400px; margin: 0 auto;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tarjeta { 
+    background: #0a0a0a; border: 1px solid #161616; border-radius: 4px; 
+    overflow: hidden; transition: transform 0.4s ease, border-color 0.4s ease;
+    animation: fadeInUp 0.6s ease forwards;
+}
+.tarjeta:hover { transform: translateY(-5px); border-color: #333; }
+
+.imagen-caja { width: 100%; height: 320px; overflow: hidden; background-color: #0c0c0c; position: relative; }
+.imagen-caja img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+.tarjeta:hover .imagen-caja img { transform: scale(1.05); }
+
+.badge-agotado { 
+    position: absolute; top: 15px; right: 15px; background: #e63946; 
+    color: white; padding: 5px 10px; font-size: 9px; font-weight: bold; 
+    letter-spacing: 2px; border-radius: 2px; text-transform: uppercase; z-index: 10;
+}
+.badge-oferta {
+    position: absolute; top: 15px; left: 15px; background: #fff; 
+    color: #000; padding: 5px 10px; font-size: 9px; font-weight: bold; 
+    letter-spacing: 2px; border-radius: 2px; text-transform: uppercase; z-index: 10;
+}
+.img-agotada { filter: grayscale(100%) opacity(0.4); }
+
+.info-caja { padding: 25px 20px; display: flex; flex-direction: column; gap: 8px; }
+.categoria { font-size: 10px; color: #666; letter-spacing: 2px; }
+.info-caja h3 { font-weight: 400; font-size: 15px; color: #fff; letter-spacing: 0.5px; }
+
+.precios { margin-bottom: 12px; display: flex; align-items: baseline; gap: 10px; }
+.precio-nuevo { font-size: 17px; font-weight: bold; color: #fff; }
+.precio-viejo { font-size: 13px; text-decoration: line-through; color: #555; }
+
+.btn-whatsapp { 
+    display: block; text-align: center; background: #ffffff; color: #000; 
+    text-decoration: none; padding: 12px; font-size: 11px; font-weight: bold; 
+    text-transform: uppercase; letter-spacing: 1.5px; border-radius: 3px;
+    border: 1px solid #ffffff; transition: all 0.3s ease;
+}
+.btn-whatsapp:hover { background: #050505; color: #ffffff; }
+.btn-agotado { background: #141414; color: #444; border-color: #141414; cursor: not-allowed; }
+.btn-agotado:hover { background: #141414; color: #444; }
+
+.oculto { display: none !important; }
+
+footer {
+    text-align: center; padding: 50px 20px 30px 20px; border-top: 1px solid #1a1a1a;
+    background: #050505; color: #666; font-size: 11px; letter-spacing: 1.5px;
+}
+footer a { color: #aaa; text-decoration: none; transition: color 0.3s; }
+footer a:hover { color: #fff; }
+
+.enlace-admin-discreto { margin-top: 15px; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; }
+.enlace-admin-discreto a { color: #333; text-decoration: none; transition: color 0.3s; }
+.enlace-admin-discreto a:hover { color: #777; }
+
+.btn-flotante-wa {
+    position: fixed; bottom: 25px; right: 25px; width: 55px; height: 55px;
+    background-color: #25d366; border-radius: 50%; display: flex; justify-content: center;
+    align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.6); z-index: 1000;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+.btn-flotante-wa:hover { transform: scale(1.08); background-color: #20b858; }
+.btn-flotante-wa img { width: 30px; height: 30px; filter: brightness(0) invert(1); }
+
 @media (max-width: 768px) {
+    header { padding: 15px 20px; flex-direction: column; gap: 12px; }
+    .contenedor-productos { padding: 0 20px 40px 20px; grid-template-columns: 1fr; }
+    .hero-banner h1 { font-size: 26px; }
+    .marca-agua-fondo { font-size: 70vw; }
     .contenedor-drop-mes { padding: 0 20px; }
-    .caja-drop-mes { padding: 20px; }
-    .drop-titulo { font-size: 18px; }
 }
