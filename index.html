@@ -86,20 +86,18 @@
         <p>Plata 925 • Acero Inoxidable • Oro</p>
     </section>
 
-    <!-- BANNER DINÁMICO DEL DROP / TEMPORADA -->
-    <div class="contenedor-drop-mes">
-        <div class="caja-drop-mes">
-            <span class="drop-etiqueta">Edición Especial & Drop</span>
-            <h2 class="drop-titulo" id="textoDropMes">Estamos creando las mejores ofertas para ti</h2>
-        </div>
-    </div>
-
     <main>
-        <div class="buscador-contenedor">
+        <!-- BUSCADOR Y ORDENAMIENTO POR PRECIO -->
+        <div class="controles-superiores">
             <input type="text" id="buscadorProductos" placeholder="Buscar accesorio (Ej. Cadena Cubana)...">
+            <select id="selectOrdenar">
+                <option value="recientes">Ordenar por: Recientes</option>
+                <option value="menor-mayor">Precio: Menor a Mayor</option>
+                <option value="mayor-menor">Precio: Mayor a Menor</option>
+            </select>
         </div>
 
-        <div class="filtros">
+        <div class="filtros" id="contenedorFiltrosPrincipales">
             <button class="filtro-btn activo" data-cat="todos">Todos</button>
             <button class="filtro-btn" data-cat="plata">Plata 925</button>
             <button class="filtro-btn" data-cat="acero">Acero Inoxidable</button>
@@ -178,84 +176,131 @@
         let categoriaActiva = "todos";
         let subcategoriaActiva = "todos";
         let terminoBusqueda = "";
+        let ordenActual = "recientes";
+        let listaProductosGlobal = [];
+        let nombreDropActual = "";
         const telefonoVestigio = "573053030991"; 
 
         document.addEventListener("DOMContentLoaded", async () => {
-            const contenedor = document.getElementById("contenedorProductos");
-            renderizarSubFiltros("todos");
             configurarModalNosotros();
-            cargarDropDinamico();
+            await verificarYRenderizarDrop();
+            renderizarSubFiltros("todos");
 
             try {
                 const querySnapshot = await getDocs(collection(db, "productos"));
-                contenedor.innerHTML = ""; 
+                listaProductosGlobal = [];
 
                 if (querySnapshot.empty) {
-                    contenedor.innerHTML = "<p style='color:#888;'>Aún no hay productos en el catálogo.</p>";
+                    document.getElementById("contenedorProductos").innerHTML = "<p style='color:#888; text-align:center; width:100%; grid-column:1/-1;'>Aún no hay productos en el catálogo.</p>";
                     ocultarPantallaCarga();
                     return;
                 }
 
                 querySnapshot.forEach((doc) => {
-                    const producto = doc.data();
-                    const precioFormateado = new Intl.NumberFormat('es-CO').format(producto.precio);
-                    
-                    let bloquePrecio = "";
-                    let badgeOferta = "";
-                    if(producto.precioAnterior && producto.precioAnterior > producto.precio) {
-                        const precioAntFormateado = new Intl.NumberFormat('es-CO').format(producto.precioAnterior);
-                        bloquePrecio = `<span class="precio-viejo">$ ${precioAntFormateado}</span>`;
-                        badgeOferta = `<div class="badge-oferta">Oferta</div>`;
-                    }
-                    
-                    const estaAgotado = (producto.cantidad === 0);
-                    const badgeAgotado = estaAgotado ? `<div class="badge-agotado">Agotado</div>` : "";
-                    const claseImgAgotado = estaAgotado ? `img-agotada` : "";
-
-                    const tarjetaHTML = `
-                        <article class="tarjeta" data-cat="${producto.categoria}" data-sub="${producto.subcategoria}" data-nombre="${producto.nombre.toLowerCase()}">
-                            <div class="imagen-caja tarjeta-clicable" data-json='${JSON.stringify(producto)}'>
-                                ${badgeAgotado}
-                                ${!estaAgotado ? badgeOferta : ""}
-                                <img src="${producto.imagen}" alt="${producto.nombre}" class="${claseImgAgotado}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;">
-                            </div>
-                            <div class="info-caja">
-                                <span class="categoria">${producto.categoria.toUpperCase()}</span>
-                                <h3 class="tarjeta-clicable" data-json='${JSON.stringify(producto)}' style="cursor:pointer;">${producto.nombre}</h3>
-                                <div class="precios">
-                                    ${bloquePrecio}
-                                    <span class="precio-nuevo">$ ${precioFormateado}</span>
-                                </div>
-                                <button class="btn-whatsapp tarjeta-clicable" data-json='${JSON.stringify(producto)}' style="border:none; cursor:pointer; width:100%;">Ver Detalles</button>
-                            </div>
-                        </article>
-                    `;
-                    contenedor.innerHTML += tarjetaHTML;
+                    listaProductosGlobal.push({ id: doc.id, ...doc.data() });
                 });
 
+                renderizarProductos();
                 configurarFiltrosGlobales();
-                configurarModal();
                 ocultarPantallaCarga();
 
             } catch (error) {
                 console.error("Error al cargar productos: ", error);
-                contenedor.innerHTML = "<p style='color:red;'>Error al conectar con el catálogo.</p>";
+                document.getElementById("contenedorProductos").innerHTML = "<p style='color:red; text-align:center; width:100%; grid-column:1/-1;'>Error al conectar con el catálogo.</p>";
                 ocultarPantallaCarga();
             }
         });
 
-        async function cargarDropDinamico() {
+        function renderizarProductos() {
+            const contenedor = document.getElementById("contenedorProductos");
+            contenedor.innerHTML = "";
+
+            // Copia para ordenar sin alterar la original
+            let productosFiltrados = [...listaProductosGlobal];
+
+            // 1. Filtrar por búsqueda
+            if (terminoBusqueda) {
+                productosFiltrados = productosFiltrados.filter(p => p.nombre.toLowerCase().includes(terminoBusqueda));
+            }
+
+            // 2. Filtrar por categoría / drop
+            if (categoriaActiva !== "todos") {
+                if (categoriaActiva === "drop") {
+                    productosFiltrados = productosFiltrados.filter(p => p.esDrop === true);
+                } else {
+                    productosFiltrados = productosFiltrados.filter(p => p.categoria === categoriaActiva);
+                }
+            }
+
+            // 3. Filtrar por subcategoría
+            if (subcategoriaActiva !== "todos" && categoriaActiva !== "drop") {
+                productosFiltrados = productosFiltrados.filter(p => p.subcategoria === subcategoriaActiva);
+            }
+
+            // 4. Ordenar por precio o recientes
+            if (ordenActual === "menor-mayor") {
+                productosFiltrados.sort((a, b) => a.precio - b.precio);
+            } else if (ordenActual === "mayor-menor") {
+                productosFiltrados.sort((a, b) => b.precio - a.precio);
+            }
+
+            if (productosFiltrados.length === 0) {
+                contenedor.innerHTML = "<p style='color:#888; text-align:center; width:100%; grid-column:1/-1;'>No se encontraron accesorios con estos filtros.</p>";
+                return;
+            }
+
+            productosFiltrados.forEach((producto) => {
+                const precioFormateado = new Intl.NumberFormat('es-CO').format(producto.precio);
+                
+                let bloquePrecio = "";
+                let badgeOferta = "";
+                if(producto.precioAnterior && producto.precioAnterior > producto.precio) {
+                    const precioAntFormateado = new Intl.NumberFormat('es-CO').format(producto.precioAnterior);
+                    bloquePrecio = `<span class="precio-viejo">$ ${precioAntFormateado}</span>`;
+                    badgeOferta = `<div class="badge-oferta">Oferta</div>`;
+                }
+                
+                const estaAgotado = (producto.cantidad === 0);
+                const badgeAgotado = estaAgotado ? `<div class="badge-agotado">Agotado</div>` : "";
+                const claseImgAgotado = estaAgotado ? `img-agotada` : "";
+
+                const tarjetaHTML = `
+                    <article class="tarjeta">
+                        <div class="imagen-caja tarjeta-clicable" data-json='${JSON.stringify(producto)}'>
+                            ${badgeAgotado}
+                            ${!estaAgotado ? badgeOferta : ""}
+                            <img src="${producto.imagen}" alt="${producto.nombre}" class="${claseImgAgotado}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;">
+                        </div>
+                        <div class="info-caja">
+                            <span class="categoria">${producto.categoria.toUpperCase()}</span>
+                            <h3 class="tarjeta-clicable" data-json='${JSON.stringify(producto)}' style="cursor:pointer;">${producto.nombre}</h3>
+                            <div class="precios">
+                                ${bloquePrecio}
+                                <span class="precio-nuevo">$ ${precioFormateado}</span>
+                            </div>
+                            <button class="btn-whatsapp tarjeta-clicable" data-json='${JSON.stringify(producto)}' style="border:none; cursor:pointer; width:100%;">Ver Detalles</button>
+                        </div>
+                    </article>
+                `;
+                contenedor.innerHTML += tarjetaHTML;
+            });
+
+            configurarModal();
+        }
+
+        async function verificarYRenderizarDrop() {
             try {
                 const docRef = doc(db, "configuracion", "dropMes");
                 const docSnap = await getDoc(docRef);
-                const textoElemento = document.getElementById("textoDropMes");
-                if (docSnap.exists() && docSnap.data().mensaje) {
-                    textoElemento.innerText = docSnap.data().mensaje;
-                } else {
-                    textoElemento.innerText = "Estamos creando las mejores ofertas para ti";
+                if (docSnap.exists() && docSnap.data().nombreDrop) {
+                    nombreDropActual = docSnap.data().nombreDrop;
+                    const contenedorFiltros = document.getElementById("contenedorFiltrosPrincipales");
+                    contenedorFiltros.innerHTML += `
+                        <button class="filtro-btn filtro-btn-drop" data-cat="drop">✨ ${nombreDropActual}</button>
+                    `;
                 }
             } catch (e) {
-                console.error("Error cargando drop:", e);
+                console.error("Error cargando configuración de drop:", e);
             }
         }
 
@@ -339,6 +384,11 @@
 
         function renderizarSubFiltros(categoria) {
             const contenedorSubFiltros = document.getElementById("contenedorSubFiltros");
+            if (categoria === "drop") {
+                contenedorSubFiltros.innerHTML = "";
+                subcategoriaActiva = "todos";
+                return;
+            }
             const opciones = (categoria === "relojes") ? subFiltrosRelojes : subFiltrosJoyas;
             
             contenedorSubFiltros.innerHTML = opciones.map(opt => 
@@ -350,48 +400,36 @@
                     document.querySelectorAll(".sub-filtro-btn").forEach(b => b.classList.remove("activo"));
                     boton.classList.add("activo");
                     subcategoriaActiva = boton.getAttribute("data-sub");
-                    aplicarLogicaOcultar();
+                    renderizarProductos();
                 });
             });
             subcategoriaActiva = "todos";
         }
 
-        function aplicarLogicaOcultar() {
-            const tarjetas = document.querySelectorAll(".tarjeta");
-            tarjetas.forEach(tarjeta => {
-                const catProducto = tarjeta.getAttribute("data-cat");
-                const subProducto = tarjeta.getAttribute("data-sub");
-                const nombreProducto = tarjeta.getAttribute("data-nombre");
-
-                const cumpleCat = (categoriaActiva === "todos" || categoriaActiva === catProducto);
-                const cumpleSub = (subcategoriaActiva === "todos" || subcategoriaActiva === subProducto);
-                const cumpleBus = nombreProducto.includes(terminoBusqueda);
-
-                if (cumpleCat && cumpleSub && cumpleBus) {
-                    tarjeta.classList.remove("oculto");
-                } else {
-                    tarjeta.classList.add("oculto");
-                }
-            });
-        }
-
         function configurarFiltrosGlobales() {
-            const botonesCategoria = document.querySelectorAll(".filtro-btn");
             const inputBuscador = document.getElementById("buscadorProductos");
+            const selectOrdenar = document.getElementById("selectOrdenar");
 
             inputBuscador.addEventListener("input", (e) => {
                 terminoBusqueda = e.target.value.toLowerCase();
-                aplicarLogicaOcultar();
+                renderizarProductos();
             });
 
-            botonesCategoria.forEach(boton => {
-                boton.addEventListener("click", () => {
-                    botonesCategoria.forEach(b => b.classList.remove("activo"));
-                    boton.classList.add("activo");
-                    categoriaActiva = boton.getAttribute("data-cat");
-                    renderizarSubFiltros(categoriaActiva);
-                    aplicarLogicaOcultar();
-                });
+            selectOrdenar.addEventListener("change", (e) => {
+                ordenActual = e.target.value;
+                renderizarProductos();
+            });
+
+            // Delegación de eventos para los botones de categoría inyectados dinámicamente
+            document.getElementById("contenedorFiltrosPrincipales").addEventListener("click", (e) => {
+                const boton = e.target.closest(".filtro-btn");
+                if (!boton) return;
+
+                document.querySelectorAll(".filtro-btn").forEach(b => b.classList.remove("activo"));
+                boton.classList.add("activo");
+                categoriaActiva = boton.getAttribute("data-cat");
+                renderizarSubFiltros(categoriaActiva);
+                renderizarProductos();
             });
         }
     </script>
