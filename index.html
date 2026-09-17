@@ -87,7 +87,6 @@
     </section>
 
     <main>
-        <!-- BUSCADOR Y ORDENAMIENTO POR PRECIO -->
         <div class="controles-superiores">
             <input type="text" id="buscadorProductos" placeholder="Buscar accesorio (Ej. Cadena Cubana)...">
             <select id="selectOrdenar">
@@ -112,7 +111,6 @@
         </div>
     </main>
 
-    <!-- VENTANA MODAL DE DETALLE DE PRODUCTO -->
     <div class="modal-overlay" id="modalDetalle">
         <div class="modal-contenido">
             <button class="modal-cerrar" id="btnCerrarModal">&times;</button>
@@ -134,7 +132,6 @@
         </div>
     </div>
 
-    <!-- VENTANA MODAL "NOSOTROS" -->
     <div class="modal-overlay" id="modalNosotros">
         <div class="modal-nosotros-contenido">
             <button class="modal-cerrar" id="btnCerrarNosotros">&times;</button>
@@ -215,15 +212,12 @@
             const contenedor = document.getElementById("contenedorProductos");
             contenedor.innerHTML = "";
 
-            // Copia para ordenar sin alterar la original
             let productosFiltrados = [...listaProductosGlobal];
 
-            // 1. Filtrar por búsqueda
             if (terminoBusqueda) {
                 productosFiltrados = productosFiltrados.filter(p => p.nombre.toLowerCase().includes(terminoBusqueda));
             }
 
-            // 2. Filtrar por categoría / drop
             if (categoriaActiva !== "todos") {
                 if (categoriaActiva === "drop") {
                     productosFiltrados = productosFiltrados.filter(p => p.esDrop === true);
@@ -232,12 +226,10 @@
                 }
             }
 
-            // 3. Filtrar por subcategoría
             if (subcategoriaActiva !== "todos" && categoriaActiva !== "drop") {
                 productosFiltrados = productosFiltrados.filter(p => p.subcategoria === subcategoriaActiva);
             }
 
-            // 4. Ordenar por precio o recientes
             if (ordenActual === "menor-mayor") {
                 productosFiltrados.sort((a, b) => a.precio - b.precio);
             } else if (ordenActual === "mayor-menor") {
@@ -420,7 +412,6 @@
                 renderizarProductos();
             });
 
-            // Delegación de eventos para los botones de categoría inyectados dinámicamente
             document.getElementById("contenedorFiltrosPrincipales").addEventListener("click", (e) => {
                 const boton = e.target.closest(".filtro-btn");
                 if (!boton) return;
