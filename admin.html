@@ -13,8 +13,8 @@
         .form-fila { display: flex; gap: 15px; } 
         .form-fila .form-grupo { flex: 1; }
         label { display: block; color: #888; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-        input, select { width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; border-radius: 4px; }
-        input:focus, select:focus { border-color: #666; outline: none; }
+        input, select, textarea { width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; border-radius: 4px; font-family: inherit; }
+        input:focus, select:focus, textarea:focus { border-color: #666; outline: none; }
         .btn-guardar { background: #ffffff; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.3s; }
         .btn-guardar:hover { background: #25D366; color: white; }
         input[type="file"] { cursor: pointer; padding: 10px; color: #aaa; }
@@ -57,7 +57,12 @@
             
             <div class="form-grupo">
                 <label>Nombre del Accesorio</label>
-                <input type="text" id="nombreProducto" placeholder="Ej: Pulsera Eslabones o Reloj Casio">
+                <input type="text" id="nombreProducto" placeholder="Ej: Reloj Casio Vintage o Cadena Cubana">
+            </div>
+
+            <div class="form-grupo">
+                <label>Descripción Comercial (Se verá en la ventana de detalles)</label>
+                <textarea id="descripcionProducto" rows="3" placeholder="Ej: Reloj clásico en acero inoxidable resistente al agua, diseño minimalista ideal para ocasiones formales y casuales."></textarea>
             </div>
 
             <div class="form-fila">
@@ -71,7 +76,7 @@
                 </div>
                 <div class="form-grupo">
                     <label>Precio Anterior (Opcional)</label>
-                    <input type="number" id="precioAnteriorProducto" placeholder="Ej: 60000 (Tachado)">
+                    <input type="number" id="precioAnteriorProducto" placeholder="Ej: 60000">
                 </div>
             </div>
 
@@ -92,7 +97,7 @@
             </div>
 
             <div class="form-grupo">
-                <label>Sub-Categoría (Cambia según la principal)</label>
+                <label>Sub-Categoría</label>
                 <select id="subCategoriaProducto">
                     <option value="cadenas">Cadenas</option>
                     <option value="pulseras">Pulseras</option>
@@ -134,7 +139,6 @@
         const imgbbApiKey = "69d3248964e2cdc2d6c16587c88b4866";
         const formatoCO = new Intl.NumberFormat('es-CO');
 
-        // LÓGICA DINÁMICA DE CATEGORÍAS
         const selectCat = document.getElementById("categoriaProducto");
         const selectSub = document.getElementById("subCategoriaProducto");
         
@@ -238,7 +242,7 @@
                 document.querySelectorAll(".btn-eliminar").forEach(btn => {
                     btn.addEventListener("click", async (e) => {
                         const idProd = e.target.getAttribute("data-id");
-                        if(confirm("¿Seguro que quieres eliminar este producto del sistema por completo?")) {
+                        if(confirm("¿Seguro que quieres eliminar este producto del sistema?")) {
                             await deleteDoc(doc(db, "productos", idProd));
                             cargarInventario();
                         }
@@ -255,6 +259,7 @@
 
         document.getElementById("btnGuardar").addEventListener("click", async () => {
             const nombre = document.getElementById("nombreProducto").value;
+            const descripcion = document.getElementById("descripcionProducto").value;
             const precio = document.getElementById("precioProducto").value;
             const precioAnterior = document.getElementById("precioAnteriorProducto").value;
             const costo = document.getElementById("costoProducto").value;
@@ -265,7 +270,7 @@
             const archivo = inputArchivo.files[0];
 
             if(!nombre || !precio || !costo || !cantidad || !archivo) {
-                alert("Por favor llena todos los datos obligatorios y sube una foto.");
+                alert("Por favor llena los datos obligatorios y sube una foto.");
                 return;
             }
 
@@ -287,6 +292,7 @@
 
                 await addDoc(collection(db, "productos"), {
                     nombre: nombre,
+                    descripcion: descripcion || "Pieza exclusiva seleccionada bajo los más altos estándares de diseño en Vestigio.",
                     precio: Number(precio),
                     precioAnterior: precioAnterior ? Number(precioAnterior) : 0,
                     costo: Number(costo),
@@ -299,6 +305,7 @@
                 alert("¡Joya registrada con éxito!");
                 
                 document.getElementById("nombreProducto").value = "";
+                document.getElementById("descripcionProducto").value = "";
                 document.getElementById("precioProducto").value = "";
                 document.getElementById("precioAnteriorProducto").value = "";
                 document.getElementById("costoProducto").value = "";
