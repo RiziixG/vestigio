@@ -7,8 +7,57 @@
     <link rel="icon" type="image/png" href="img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* ESTILOS NUEVOS: Pantalla de Carga (Splash Screen) */
+        #pantalla-carga {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #050505; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999;
+            transition: opacity 0.6s ease;
+        }
+        .logo-carga {
+            font-family: 'Cinzel', serif; font-size: 50px; color: #fff;
+            letter-spacing: 8px; font-weight: 700; animation: latido 1.5s infinite ease-in-out;
+        }
+        @keyframes latido {
+            0%, 100% { opacity: 0.4; transform: scale(0.98); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+
+        /* ESTILOS NUEVOS: Ventana de Detalle de Producto (Modal) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.activo { opacity: 1; pointer-events: auto; }
+        .modal-contenido {
+            background: #0a0a0a; border: 1px solid #222; width: 90%; max-width: 850px;
+            border-radius: 8px; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr;
+            position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+        }
+        .modal-imagen { width: 100%; height: 100%; min-height: 400px; background: #111; object-fit: cover; }
+        .modal-info { padding: 40px; display: flex; flex-direction: column; justify-content: space-between; }
+        .modal-cerrar {
+            position: absolute; top: 15px; right: 20px; background: transparent;
+            border: none; color: #fff; font-size: 24px; cursor: pointer; z-index: 10;
+        }
+        .modal-descripcion { color: #888; font-size: 13px; line-height: 1.6; margin: 15px 0; }
+        
+        @media (max-width: 768px) {
+            .modal-contenido { grid-template-columns: 1fr; max-height: 90vh; overflow-y: auto; }
+            .modal-imagen { height: 250px; min-height: 250px; }
+            .modal-info { padding: 20px; }
+        }
+    </style>
 </head>
 <body>
+    <!-- PANTALLA DE CARGA INICIAL -->
+    <div id="pantalla-carga">
+        <div class="logo-carga">V</div>
+    </div>
+
     <header>
         <a href="#" class="logo-texto">VESTIGIO</a>
         <nav>
@@ -35,15 +84,31 @@
             <button class="filtro-btn" data-cat="relojes">Relojes</button>
         </div>
 
-        <!-- Contenedor dinámico de Sub-Filtros -->
-        <div class="sub-filtros" id="contenedorSubFiltros">
-            <!-- Se llena con JavaScript -->
-        </div>
+        <div class="sub-filtros" id="contenedorSubFiltros"></div>
 
         <div class="contenedor-productos" id="contenedorProductos">
             <p style="text-align: center; color: #888; width: 100%; grid-column: 1 / -1;">Cargando colección...</p>
         </div>
     </main>
+
+    <!-- VENTANA MODAL DE DETALLE DE PRODUCTO -->
+    <div class="modal-overlay" id="modalDetalle">
+        <div class="modal-contenido">
+            <button class="modal-cerrar" id="btnCerrarModal">&times;</button>
+            <img id="modalImg" src="" alt="Detalle" class="modal-imagen">
+            <div class="modal-info">
+                <div>
+                    <span id="modalCat" class="categoria" style="margin-bottom: 5px; display:block;">CATEGORÍA</span>
+                    <h2 id="modalNombre" style="font-weight: 400; font-size: 22px; color: #fff; margin-bottom: 10px;">Nombre</h2>
+                    <div class="precios" id="modalPrecios"></div>
+                    <p class="modal-descripcion" id="modalDesc">Pieza exclusiva seleccionada bajo los más altos estándares de diseño y durabilidad en Vestigio.</p>
+                </div>
+                <div id="modalBotonContenedor">
+                    <!-- El botón de WhatsApp se inyecta aquí dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <p>Vestigio © 2026. Entregas en Santa Marta y envíos a toda Colombia.</p>
@@ -77,7 +142,7 @@
 
         document.addEventListener("DOMContentLoaded", async () => {
             const contenedor = document.getElementById("contenedorProductos");
-            renderizarSubFiltros("todos"); // Carga los subfiltros iniciales (Joyas)
+            renderizarSubFiltros("todos");
 
             try {
                 const querySnapshot = await getDocs(collection(db, "productos"));
@@ -85,6 +150,7 @@
 
                 if (querySnapshot.empty) {
                     contenedor.innerHTML = "<p style='color:#888;'>Aún no hay productos en el catálogo.</p>";
+                    ocultarPantallaCarga();
                     return;
                 }
 
@@ -103,32 +169,22 @@
                     const estaAgotado = (producto.cantidad === 0);
                     const badgeAgotado = estaAgotado ? `<div class="badge-agotado">Agotado</div>` : "";
                     const claseImgAgotado = estaAgotado ? `img-agotada` : "";
-                    
-                    const mensajeWa = `Hola, vengo de la página web. Me interesa: ${producto.nombre}`;
-                    const linkWa = `https://wa.me/${telefonoVestigio}?text=${encodeURIComponent(mensajeWa)}`;
-
-                    let botonHTML = "";
-                    if(estaAgotado) {
-                        botonHTML = `<button class="btn-whatsapp btn-agotado" disabled>Agotado temporalmente</button>`;
-                    } else {
-                        botonHTML = `<a href="${linkWa}" target="_blank" class="btn-whatsapp">Pedir por WhatsApp</a>`;
-                    }
 
                     const tarjetaHTML = `
                         <article class="tarjeta" data-cat="${producto.categoria}" data-sub="${producto.subcategoria}" data-nombre="${producto.nombre.toLowerCase()}">
-                            <div class="imagen-caja">
+                            <div class="imagen-caja tarjeta-clicable" data-json='${JSON.stringify(producto)}'>
                                 ${badgeAgotado}
                                 ${!estaAgotado ? badgeOferta : ""}
-                                <img src="${producto.imagen}" alt="${producto.nombre}" class="${claseImgAgotado}" style="width: 100%; height: 100%; object-fit: cover;">
+                                <img src="${producto.imagen}" alt="${producto.nombre}" class="${claseImgAgotado}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;">
                             </div>
                             <div class="info-caja">
                                 <span class="categoria">${producto.categoria.toUpperCase()}</span>
-                                <h3>${producto.nombre}</h3>
+                                <h3 class="tarjeta-clicable" data-json='${JSON.stringify(producto)}' style="cursor:pointer;">${producto.nombre}</h3>
                                 <div class="precios">
                                     ${bloquePrecio}
                                     <span class="precio-nuevo">$ ${precioFormateado}</span>
                                 </div>
-                                ${botonHTML}
+                                <button class="btn-whatsapp tarjeta-clicable" data-json='${JSON.stringify(producto)}' style="border:none; cursor:pointer; width:100%;">Ver Detalles</button>
                             </div>
                         </article>
                     `;
@@ -136,27 +192,76 @@
                 });
 
                 configurarFiltrosGlobales();
+                configurarModal();
+                ocultarPantallaCarga();
 
             } catch (error) {
                 console.error("Error al cargar productos: ", error);
                 contenedor.innerHTML = "<p style='color:red;'>Error al conectar con el catálogo.</p>";
+                ocultarPantallaCarga();
             }
         });
 
-        const subFiltrosJoyas = [
-            { id: "todos", text: "Todo" },
-            { id: "cadenas", text: "Cadenas" },
-            { id: "pulseras", text: "Pulseras" },
-            { id: "aretes", text: "Aretes" },
-            { id: "dijes", text: "Dijes" },
-            { id: "anillos", text: "Anillos" }
-        ];
+        function ocultarPantallaCarga() {
+            const carga = document.getElementById("pantalla-carga");
+            carga.style.opacity = "0";
+            setTimeout(() => carga.style.display = "none", 600);
+        }
 
+        // Lógica del Modal (Detalle del producto)
+        function configurarModal() {
+            const modal = document.getElementById("modalDetalle");
+            const btnCerrar = document.getElementById("btnCerrarModal");
+
+            document.querySelectorAll(".tarjeta-clicable").forEach(elemento => {
+                elemento.addEventListener("click", (e) => {
+                    const datos = JSON.parse(e.currentTarget.getAttribute("data-json"));
+                    abrirModal(datos);
+                });
+            });
+
+            btnCerrar.addEventListener("click", () => modal.classList.remove("activo"));
+            modal.addEventListener("click", (e) => {
+                if(e.target === modal) modal.classList.remove("activo");
+            });
+        }
+
+        function abrirModal(prod) {
+            const modal = document.getElementById("modalDetalle");
+            document.getElementById("modalImg").src = prod.imagen;
+            document.getElementById("modalCat").innerText = `${prod.categoria.toUpperCase()} / ${prod.subcategoria.toUpperCase()}`;
+            document.getElementById("modalNombre").innerText = prod.nombre;
+            
+            const precioFormateado = new Intl.NumberFormat('es-CO').format(prod.precio);
+            let preciosHTML = `<span class="precio-nuevo">$ ${precioFormateado}</span>`;
+            if(prod.precioAnterior && prod.precioAnterior > prod.precio) {
+                const antFormateado = new Intl.NumberFormat('es-CO').format(prod.precioAnterior);
+                preciosHTML = `<span class="precio-viejo">$ ${antFormateado}</span> <span class="precio-nuevo">$ ${precioFormateado}</span>`;
+            }
+            document.getElementById("modalPrecios").innerHTML = preciosHTML;
+
+            const contenedorBoton = document.getElementById("modalBotonContenedor");
+            const estaAgotado = (prod.cantidad === 0);
+
+            if(estaAgotado) {
+                contenedorBoton.innerHTML = `<button class="btn-whatsapp btn-agotado" disabled style="width:100%;">Agotado temporalmente</button>`;
+            } else {
+                const mensajeWa = `Hola, vengo de la página web y quiero pedir: ${prod.nombre}`;
+                const linkWa = `https://wa.me/${telefonoVestigio}?text=${encodeURIComponent(mensajeWa)}`;
+                contenedorBoton.innerHTML = `<a href="${linkWa}" target="_blank" class="btn-whatsapp" style="display:block; text-align:center; text-decoration:none;">Pedir por WhatsApp</a>`;
+            }
+
+            modal.classList.add("activo");
+        }
+
+        const subFiltrosJoyas = [
+            { id: "todos", text: "Todo" }, { id: "cadenas", text: "Cadenas" },
+            { id: "pulseras", text: "Pulseras" }, { id: "aretes", text: "Aretes" },
+            { id: "dijes", text: "Dijes" }, { id: "anillos", text: "Anillos" }
+        ];
         const subFiltrosRelojes = [
-            { id: "todos", text: "Todo" },
-            { id: "casuales", text: "Casuales" },
-            { id: "deportivos", text: "Deportivos" },
-            { id: "elegantes", text: "Elegantes" }
+            { id: "todos", text: "Todo" }, { id: "casuales", text: "Casuales" },
+            { id: "deportivos", text: "Deportivos" }, { id: "elegantes", text: "Elegantes" }
         ];
 
         function renderizarSubFiltros(categoria) {
@@ -167,17 +272,15 @@
                 `<button class="sub-filtro-btn ${opt.id === 'todos' ? 'activo' : ''}" data-sub="${opt.id}">${opt.text}</button>`
             ).join('');
 
-            // Agregar eventos de click a los botones recién creados
-            const botonesSubcategoria = document.querySelectorAll(".sub-filtro-btn");
-            botonesSubcategoria.forEach(boton => {
+            document.querySelectorAll(".sub-filtro-btn").forEach(boton => {
                 boton.addEventListener("click", () => {
-                    botonesSubcategoria.forEach(b => b.classList.remove("activo"));
+                    document.querySelectorAll(".sub-filtro-btn").forEach(b => b.classList.remove("activo"));
                     boton.classList.add("activo");
                     subcategoriaActiva = boton.getAttribute("data-sub");
                     aplicarLogicaOcultar();
                 });
             });
-            subcategoriaActiva = "todos"; // Reseteamos el subfiltro al cambiar la categoría principal
+            subcategoriaActiva = "todos";
         }
 
         function aplicarLogicaOcultar() {
@@ -213,8 +316,6 @@
                     botonesCategoria.forEach(b => b.classList.remove("activo"));
                     boton.classList.add("activo");
                     categoriaActiva = boton.getAttribute("data-cat");
-                    
-                    // Cambiamos dinámicamente la barra de abajo
                     renderizarSubFiltros(categoriaActiva);
                     aplicarLogicaOcultar();
                 });
