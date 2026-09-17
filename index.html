@@ -43,6 +43,19 @@
         }
         .modal-descripcion { color: #888; font-size: 13px; line-height: 1.7; margin: 15px 0; }
         
+        .garantias-caja {
+            border-top: 1px solid #1a1a1a; padding-top: 15px; margin-top: 15px;
+            display: flex; flex-direction: column; gap: 6px; font-size: 11px; color: #666;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .modal-nosotros-contenido {
+            background: #0a0a0a; border: 1px solid #222; width: 90%; max-width: 550px;
+            padding: 40px; border-radius: 6px; position: relative; text-align: center;
+        }
+        .modal-nosotros-contenido h2 { font-family: 'Cinzel', serif; font-weight: 500; font-size: 24px; color: #fff; margin-bottom: 20px; letter-spacing: 3px; }
+        .modal-nosotros-contenido p { color: #888; font-size: 13px; line-height: 1.8; margin-bottom: 15px; }
+
         @media (max-width: 768px) {
             .modal-contenido { grid-template-columns: 1fr; max-height: 90vh; overflow-y: auto; }
             .modal-imagen { height: 250px; min-height: 250px; }
@@ -51,7 +64,6 @@
     </style>
 </head>
 <body>
-    <!-- MARCA DE AGUA DE FONDO -->
     <div class="marca-agua-fondo">V</div>
 
     <div id="pantalla-carga">
@@ -65,7 +77,7 @@
     <header>
         <a href="#" class="logo-texto">VESTIGIO</a>
         <nav>
-            <a href="#">Nosotros</a>
+            <a id="btnNosotros" href="#">Nosotros</a>
         </nav>
     </header>
 
@@ -94,6 +106,7 @@
         </div>
     </main>
 
+    <!-- VENTANA MODAL DE DETALLE DE PRODUCTO -->
     <div class="modal-overlay" id="modalDetalle">
         <div class="modal-contenido">
             <button class="modal-cerrar" id="btnCerrarModal">&times;</button>
@@ -104,17 +117,32 @@
                     <h2 id="modalNombre" style="font-weight: 400; font-size: 22px; color: #fff; margin-bottom: 10px;">Nombre</h2>
                     <div class="precios" id="modalPrecios"></div>
                     <p class="modal-descripcion" id="modalDesc">Descripción...</p>
+                    
+                    <div class="garantias-caja">
+                        <span>✓ Garantía de autenticidad de materiales</span>
+                        <span>✓ Envíos seguros garantizados a toda Colombia</span>
+                    </div>
                 </div>
-                <div id="modalBotonContenedor"></div>
+                <div id="modalBotonContenedor" style="margin-top: 20px;"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- VENTANA MODAL "NOSOTROS" -->
+    <div class="modal-overlay" id="modalNosotros">
+        <div class="modal-nosotros-contenido">
+            <button class="modal-cerrar" id="btnCerrarNosotros">&times;</button>
+            <h2>VESTIGIO</h2>
+            <p>Curaduría exclusiva de joyería fina y relojería con altos estándares de diseño, resistencia y elegancia atemporal.</p>
+            <p>Cada pieza está seleccionada para perdurar y elevar tu estilo diario, combinando metales nobles y acabados impecables.</p>
+            <p style="color: #fff; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-top: 20px;">Santa Marta • Colombia</p>
         </div>
     </div>
 
     <footer>
         <p>Vestigio © 2026. Todos los derechos reservados.</p>
-        <p style="margin-top: 8px;"><a href="https://wa.me/573053030991?text=Hola,%20quisiera%20más%20información%20sobre%20los%20accesorios%20de%20Vestigio." target="_blank">Atención por WhatsApp Business</a></p>
-        
-        <!-- ENLACE DISCRETO AL PANEL DE ADMINISTRADOR -->
+        <!-- Enlace corregido a tu Instagram real -->
+        <p style="margin-top: 8px;"><a href="https://www.instagram.com/vestigi.o/" target="_blank">Síguenos en Instagram (@vestigi.o)</a></p>
         <div class="enlace-admin-discreto">
             <a href="admin.html">Panel Admin</a>
         </div>
@@ -148,6 +176,7 @@
         document.addEventListener("DOMContentLoaded", async () => {
             const contenedor = document.getElementById("contenedorProductos");
             renderizarSubFiltros("todos");
+            configurarModalNosotros();
 
             try {
                 const querySnapshot = await getDocs(collection(db, "productos"));
@@ -213,6 +242,22 @@
             setTimeout(() => carga.style.display = "none", 600);
         }
 
+        function configurarModalNosotros() {
+            const modalNosotros = document.getElementById("modalNosotros");
+            const btnNosotros = document.getElementById("btnNosotros");
+            const btnCerrarNosotros = document.getElementById("btnCerrarNosotros");
+
+            btnNosotros.addEventListener("click", (e) => {
+                e.preventDefault();
+                modalNosotros.classList.add("activo");
+            });
+
+            btnCerrarNosotros.addEventListener("click", () => modalNosotros.classList.remove("activo"));
+            modalNosotros.addEventListener("click", (e) => {
+                if(e.target === modalNosotros) modalNosotros.classList.remove("activo");
+            });
+        }
+
         function configurarModal() {
             const modal = document.getElementById("modalDetalle");
             const btnCerrar = document.getElementById("btnCerrarModal");
@@ -235,7 +280,7 @@
             document.getElementById("modalImg").src = prod.imagen;
             document.getElementById("modalCat").innerText = `${prod.categoria.toUpperCase()} / ${prod.subcategoria.toUpperCase()}`;
             document.getElementById("modalNombre").innerText = prod.nombre;
-            document.getElementById("modalDesc").innerText = prod.descripcion || "Pieza exclusiva de Vestigio.";
+            document.getElementById("modalDesc").innerText = prod.descripcion || "Pieza exclusiva seleccionada bajo los más altos estándares de diseño en Vestigio.";
             
             const precioFormateado = new Intl.NumberFormat('es-CO').format(prod.precio);
             let preciosHTML = `<span class="precio-nuevo">$ ${precioFormateado}</span>`;
