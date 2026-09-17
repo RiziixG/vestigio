@@ -17,6 +17,8 @@
         input:focus, select:focus, textarea:focus { border-color: #666; outline: none; }
         .btn-guardar { background: #ffffff; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.3s; }
         .btn-guardar:hover { background: #25D366; color: white; }
+        .btn-secundario { background: #222; color: #fff; border: 1px solid #444; padding: 10px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.3s; margin-top: 10px; }
+        .btn-secundario:hover { background: #333; }
         input[type="file"] { cursor: pointer; padding: 10px; color: #aaa; }
         
         .separador { border-color: #1a1a1a; margin: 40px 0; border-style: solid; border-width: 1px 0 0 0; }
@@ -36,7 +38,6 @@
         .resumen-global { background: #1a1a1a; padding: 15px; border-radius: 4px; margin-bottom: 20px; text-align: center; color: #ccc; font-size: 14px; border: 1px dashed #333; }
         .alerta-roja { color: #ff3333; font-size: 10px; font-weight: bold; border: 1px solid #ff3333; padding: 2px 5px; border-radius: 3px; margin-left: 10px; }
 
-        /* Notificaciones Toast elegantes */
         #toastNotificacion {
             position: fixed; top: 20px; right: 20px; background: #fff; color: #000;
             padding: 12px 25px; border-radius: 4px; font-size: 12px; font-weight: bold;
@@ -64,6 +65,16 @@
 
     <main>
         <div class="panel-admin">
+            <!-- SECCIÓN: CONTROL DEL DROP / TEMPORADA -->
+            <h2 style="margin-bottom: 15px; font-weight: 300;">Gestión de Drop / Temporada</h2>
+            <div class="form-grupo">
+                <label>Mensaje del Banner Temporal (Ej: Especial Amor y Amistad • Hasta 20% Off)</label>
+                <input type="text" id="inputDropMes" placeholder="Ej: Estamos creando las mejores ofertas para ti">
+            </div>
+            <button class="btn-secundario" id="btnGuardarDrop">Actualizar Drop en la Web</button>
+
+            <hr class="separador">
+
             <h2 style="margin-bottom: 25px; font-weight: 300;">Registrar Nueva Joya</h2>
             
             <div class="form-grupo">
@@ -134,7 +145,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCdpGtJujgdlcmrTYzT26G_cudU637EAMA",
@@ -156,6 +167,32 @@
             toast.classList.add("mostrar");
             setTimeout(() => toast.classList.remove("mostrar"), 3500);
         }
+
+        // Cargar el mensaje de Drop actual al iniciar el admin
+        async function cargarConfiguracionDrop() {
+            try {
+                const docRef = doc(db, "configuracion", "dropMes");
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    document.getElementById("inputDropMes").value = docSnap.data().mensaje || "";
+                }
+            } catch (e) {
+                console.error("Error cargando drop:", e);
+            }
+        }
+        cargarConfiguracionDrop();
+
+        // Guardar el mensaje del Drop
+        document.getElementById("btnGuardarDrop").addEventListener("click", async () => {
+            const mensajeDrop = document.getElementById("inputDropMes").value;
+            try {
+                await setDoc(doc(db, "configuracion", "dropMes"), { mensaje: mensajeDrop });
+                mostrarToast("¡Drop actualizado en la tienda!");
+            } catch (e) {
+                console.error("Error al guardar drop:", e);
+                mostrarToast("Error al actualizar el drop");
+            }
+        });
 
         const selectCat = document.getElementById("categoriaProducto");
         const selectSub = document.getElementById("subCategoriaProducto");
