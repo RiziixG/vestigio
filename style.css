@@ -1,437 +1,169 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vestigio | Accesorios en Plata y Acero</title>
-    <link rel="icon" type="image/png" href="img/favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <style>
-        #pantalla-carga {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #050505; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 9999;
-            transition: opacity 0.6s ease;
-        }
-        .logo-carga {
-            font-family: 'Cinzel', serif; font-size: 50px; color: #fff;
-            letter-spacing: 8px; font-weight: 700; animation: latido 1.5s infinite ease-in-out;
-        }
-        @keyframes latido {
-            0%, 100% { opacity: 0.3; transform: scale(0.98); }
-            50% { opacity: 1; transform: scale(1.02); }
-        }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(6px);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-        }
-        .modal-overlay.activo { opacity: 1; pointer-events: auto; }
-        .modal-contenido {
-            background: #0a0a0a; border: 1px solid #222; width: 90%; max-width: 850px;
-            border-radius: 6px; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr;
-            position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.9);
-        }
-        .modal-imagen { width: 100%; height: 100%; min-height: 400px; background: #0c0c0c; object-fit: cover; }
-        .modal-info { padding: 40px; display: flex; flex-direction: column; justify-content: space-between; }
-        .modal-cerrar {
-            position: absolute; top: 15px; right: 20px; background: transparent;
-            border: none; color: #fff; font-size: 24px; cursor: pointer; z-index: 10;
-        }
-        .modal-descripcion { color: #888; font-size: 13px; line-height: 1.7; margin: 15px 0; }
-        
-        .garantias-caja {
-            border-top: 1px solid #1a1a1a; padding-top: 15px; margin-top: 15px;
-            display: flex; flex-direction: column; gap: 6px; font-size: 11px; color: #666;
-            text-transform: uppercase; letter-spacing: 1px;
-        }
+body { 
+    background-color: #050505; color: #e0e0e0; 
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6;
+    position: relative; overflow-x: hidden;
+}
 
-        .modal-nosotros-contenido {
-            background: #0a0a0a; border: 1px solid #222; width: 90%; max-width: 550px;
-            padding: 40px; border-radius: 6px; position: relative; text-align: center;
-        }
-        .modal-nosotros-contenido h2 { font-family: 'Cinzel', serif; font-weight: 500; font-size: 24px; color: #fff; margin-bottom: 20px; letter-spacing: 3px; }
-        .modal-nosotros-contenido p { color: #888; font-size: 13px; line-height: 1.8; margin-bottom: 15px; }
+/* MARCA DE AGUA DIFUMINADA DE FONDO (LA 'V' DE VESTIGIO) */
+.marca-agua-fondo {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-family: 'Cinzel', serif; font-size: 35vw; font-weight: 700;
+    color: rgba(255, 255, 255, 0.015); z-index: -1; pointer-events: none; user-select: none; line-height: 1;
+}
 
-        @media (max-width: 768px) {
-            .modal-contenido { grid-template-columns: 1fr; max-height: 90vh; overflow-y: auto; }
-            .modal-imagen { height: 250px; min-height: 250px; }
-            .modal-info { padding: 25px; }
-        }
-    </style>
-</head>
-<body>
-    <div class="marca-agua-fondo">V</div>
+.barra-anuncio {
+    background-color: #111; color: #aaa; text-align: center;
+    padding: 8px 10px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 2px; border-bottom: 1px solid #1a1a1a;
+}
 
-    <div id="pantalla-carga">
-        <div class="logo-carga">V</div>
-    </div>
+.logo-texto { 
+    font-family: 'Cinzel', serif; font-weight: 700; font-size: 28px; 
+    color: #ffffff; text-decoration: none; letter-spacing: 5px; 
+}
 
-    <div class="barra-anuncio">
-        Envíos seguros a toda Colombia • Entregas en Santa Marta
-    </div>
+header { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 20px 50px; border-bottom: 1px solid #1a1a1a;
+    background: rgba(5, 5, 5, 0.95); position: sticky; top: 0; z-index: 100;
+}
 
-    <header>
-        <a href="#" class="logo-texto">VESTIGIO</a>
-        <nav>
-            <a id="btnNosotros" href="#">Nosotros</a>
-        </nav>
-    </header>
+nav a { 
+    color: #888; text-decoration: none; margin-left: 25px; 
+    font-size: 12px; text-transform: uppercase; letter-spacing: 2px; transition: color 0.3s; cursor: pointer;
+}
+nav a:hover { color: #ffffff; }
 
-    <section class="hero-banner">
-        <h1>Colección Exclusiva</h1>
-        <p>Plata 925 • Acero Inoxidable • Oro</p>
-    </section>
+.hero-banner {
+    text-align: center; padding: 70px 20px;
+    background: linear-gradient(to bottom, #0a0a0a, #050505);
+    border-bottom: 1px solid #1a1a1a; margin-bottom: 30px;
+}
+.hero-banner h1 {
+    font-family: 'Cinzel', serif; font-size: 38px; color: #fff;
+    font-weight: 500; letter-spacing: 4px; margin-bottom: 15px;
+}
+.hero-banner p {
+    color: #777; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+}
 
-    <main>
-        <!-- BUSCADOR Y ORDENAMIENTO POR PRECIO -->
-        <div class="controles-superiores">
-            <input type="text" id="buscadorProductos" placeholder="Buscar accesorio (Ej. Cadena Cubana)...">
-            <select id="selectOrdenar">
-                <option value="recientes">Ordenar por: Recientes</option>
-                <option value="menor-mayor">Precio: Menor a Mayor</option>
-                <option value="mayor-menor">Precio: Mayor a Menor</option>
-            </select>
-        </div>
+/* BUSCADOR Y ORDENAMIENTO */
+.controles-superiores {
+    display: flex; justify-content: center; align-items: center; gap: 15px;
+    margin-bottom: 30px; padding: 0 20px; flex-wrap: wrap;
+}
+#buscadorProductos {
+    width: 100%; max-width: 400px; padding: 12px 20px;
+    border-radius: 30px; border: 1px solid #222; background: #0c0c0c;
+    color: #fff; font-size: 13px; outline: none; transition: all 0.3s ease;
+}
+#buscadorProductos:focus { border-color: #555; background: #111; }
 
-        <div class="filtros" id="contenedorFiltrosPrincipales">
-            <button class="filtro-btn activo" data-cat="todos">Todos</button>
-            <button class="filtro-btn" data-cat="plata">Plata 925</button>
-            <button class="filtro-btn" data-cat="acero">Acero Inoxidable</button>
-            <button class="filtro-btn" data-cat="oro">Oro</button>
-            <button class="filtro-btn" data-cat="relojes">Relojes</button>
-        </div>
+#selectOrdenar {
+    padding: 12px 20px; border-radius: 30px; border: 1px solid #222;
+    background: #0c0c0c; color: #aaa; font-size: 12px; outline: none; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease;
+}
+#selectOrdenar:hover, #selectOrdenar:focus { border-color: #555; color: #fff; background: #111; }
 
-        <div class="sub-filtros" id="contenedorSubFiltros"></div>
+.filtros, .sub-filtros { 
+    display: flex; justify-content: center; gap: 12px; 
+    margin-bottom: 20px; flex-wrap: wrap; padding: 0 20px;
+}
+.sub-filtros { margin-bottom: 50px; }
 
-        <div class="contenedor-productos" id="contenedorProductos">
-            <p style="text-align: center; color: #888; width: 100%; grid-column: 1 / -1;">Cargando colección...</p>
-        </div>
-    </main>
+.filtro-btn, .sub-filtro-btn { 
+    background: transparent; border: 1px solid #222; color: #888; 
+    padding: 8px 18px; cursor: pointer; text-transform: uppercase; 
+    font-size: 11px; letter-spacing: 1.5px; transition: all 0.3s ease; border-radius: 3px;
+}
+.filtro-btn:hover, .sub-filtro-btn:hover { border-color: #555; color: #fff; }
+.filtro-btn.activo, .sub-filtro-btn.activo { background: #ffffff; color: #000; border-color: #ffffff; font-weight: bold; }
 
-    <!-- VENTANA MODAL DE DETALLE DE PRODUCTO -->
-    <div class="modal-overlay" id="modalDetalle">
-        <div class="modal-contenido">
-            <button class="modal-cerrar" id="btnCerrarModal">&times;</button>
-            <img id="modalImg" src="" alt="Detalle" class="modal-imagen">
-            <div class="modal-info">
-                <div>
-                    <span id="modalCat" class="categoria" style="margin-bottom: 5px; display:block;">CATEGORÍA</span>
-                    <h2 id="modalNombre" style="font-weight: 400; font-size: 22px; color: #fff; margin-bottom: 10px;">Nombre</h2>
-                    <div class="precios" id="modalPrecios"></div>
-                    <p class="modal-descripcion" id="modalDesc">Descripción...</p>
-                    
-                    <div class="garantias-caja">
-                        <span>✓ Garantía de autenticidad de materiales</span>
-                        <span>✓ Envíos seguros garantizados a toda Colombia</span>
-                    </div>
-                </div>
-                <div id="modalBotonContenedor" style="margin-top: 20px;"></div>
-            </div>
-        </div>
-    </div>
+.filtro-btn-drop {
+    border-color: #444 !important; color: #fff !important;
+    background: linear-gradient(135deg, #161616, #0a0a0a);
+}
+.filtro-btn-drop.activo { background: #fff !important; color: #000 !important; }
 
-    <!-- VENTANA MODAL "NOSOTROS" -->
-    <div class="modal-overlay" id="modalNosotros">
-        <div class="modal-nosotros-contenido">
-            <button class="modal-cerrar" id="btnCerrarNosotros">&times;</button>
-            <h2>VESTIGIO</h2>
-            <p>Curaduría exclusiva de joyería fina y relojería con altos estándares de diseño, resistencia y elegancia atemporal.</p>
-            <p>Cada pieza está seleccionada para perdurar y elevar tu estilo diario, combinando metales nobles y acabados impecables.</p>
-            <p style="color: #fff; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-top: 20px;">Santa Marta • Colombia</p>
-        </div>
-    </div>
+.contenedor-productos { 
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 35px; padding: 0 50px 80px 50px; max-width: 1400px; margin: 0 auto;
+}
 
-    <footer>
-        <p>Vestigio © 2026. Todos los derechos reservados.</p>
-        <p style="margin-top: 8px;"><a href="https://www.instagram.com/vestigi.o/" target="_blank">Síguenos en Instagram (@vestigi.o)</a></p>
-        <div class="enlace-admin-discreto">
-            <a href="admin.html">Panel Admin</a>
-        </div>
-    </footer>
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-    <a href="https://wa.me/573053030991?text=Hola,%20quisiera%20más%20información%20sobre%20los%20accesorios%20de%20Vestigio." target="_blank" class="btn-flotante-wa">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Vestigio">
-    </a>
+.tarjeta { 
+    background: #0a0a0a; border: 1px solid #161616; border-radius: 4px; 
+    overflow: hidden; transition: transform 0.4s ease, border-color 0.4s ease;
+    animation: fadeInUp 0.6s ease forwards;
+}
+.tarjeta:hover { transform: translateY(-5px); border-color: #333; }
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+.imagen-caja { width: 100%; height: 320px; overflow: hidden; background-color: #0c0c0c; position: relative; }
+.imagen-caja img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+.tarjeta:hover .imagen-caja img { transform: scale(1.05); }
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCdpGtJujgdlcmrTYzT26G_cudU637EAMA",
-            authDomain: "vestigio-98e2d.firebaseapp.com",
-            projectId: "vestigio-98e2d",
-            storageBucket: "vestigio-98e2d.firebasestorage.app",
-            messagingSenderId: "6476709790",
-            appId: "1:6476709790:web:eea3788a7a5114e48da08f"
-        };
+.badge-agotado { 
+    position: absolute; top: 15px; right: 15px; background: #e63946; 
+    color: white; padding: 5px 10px; font-size: 9px; font-weight: bold; 
+    letter-spacing: 2px; border-radius: 2px; text-transform: uppercase; z-index: 10;
+}
+.badge-oferta {
+    position: absolute; top: 15px; left: 15px; background: #fff; 
+    color: #000; padding: 5px 10px; font-size: 9px; font-weight: bold; 
+    letter-spacing: 2px; border-radius: 2px; text-transform: uppercase; z-index: 10;
+}
+.img-agotada { filter: grayscale(100%) opacity(0.4); }
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+.info-caja { padding: 25px 20px; display: flex; flex-direction: column; gap: 8px; }
+.categoria { font-size: 10px; color: #666; letter-spacing: 2px; }
+.info-caja h3 { font-weight: 400; font-size: 15px; color: #fff; letter-spacing: 0.5px; }
 
-        let categoriaActiva = "todos";
-        let subcategoriaActiva = "todos";
-        let terminoBusqueda = "";
-        let ordenActual = "recientes";
-        let listaProductosGlobal = [];
-        let nombreDropActual = "";
-        const telefonoVestigio = "573053030991"; 
+.precios { margin-bottom: 12px; display: flex; align-items: baseline; gap: 10px; }
+.precio-nuevo { font-size: 17px; font-weight: bold; color: #fff; }
+.precio-viejo { font-size: 13px; text-decoration: line-through; color: #555; }
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            configurarModalNosotros();
-            await verificarYRenderizarDrop();
-            renderizarSubFiltros("todos");
+.btn-whatsapp { 
+    display: block; text-align: center; background: #ffffff; color: #000; 
+    text-decoration: none; padding: 12px; font-size: 11px; font-weight: bold; 
+    text-transform: uppercase; letter-spacing: 1.5px; border-radius: 3px;
+    border: 1px solid #ffffff; transition: all 0.3s ease;
+}
+.btn-whatsapp:hover { background: #050505; color: #ffffff; }
+.btn-agotado { background: #141414; color: #444; border-color: #141414; cursor: not-allowed; }
+.btn-agotado:hover { background: #141414; color: #444; }
 
-            try {
-                const querySnapshot = await getDocs(collection(db, "productos"));
-                listaProductosGlobal = [];
+.oculto { display: none !important; }
 
-                if (querySnapshot.empty) {
-                    document.getElementById("contenedorProductos").innerHTML = "<p style='color:#888; text-align:center; width:100%; grid-column:1/-1;'>Aún no hay productos en el catálogo.</p>";
-                    ocultarPantallaCarga();
-                    return;
-                }
+footer {
+    text-align: center; padding: 50px 20px 30px 20px; border-top: 1px solid #1a1a1a;
+    background: #050505; color: #666; font-size: 11px; letter-spacing: 1.5px;
+}
+footer a { color: #aaa; text-decoration: none; transition: color 0.3s; }
+footer a:hover { color: #fff; }
 
-                querySnapshot.forEach((doc) => {
-                    listaProductosGlobal.push({ id: doc.id, ...doc.data() });
-                });
+.enlace-admin-discreto { margin-top: 15px; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; }
+.enlace-admin-discreto a { color: #333; text-decoration: none; transition: color 0.3s; }
+.enlace-admin-discreto a:hover { color: #777; }
 
-                renderizarProductos();
-                configurarFiltrosGlobales();
-                ocultarPantallaCarga();
+.btn-flotante-wa {
+    position: fixed; bottom: 25px; right: 25px; width: 55px; height: 55px;
+    background-color: #25d366; border-radius: 50%; display: flex; justify-content: center;
+    align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.6); z-index: 1000;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+.btn-flotante-wa:hover { transform: scale(1.08); background-color: #20b858; }
+.btn-flotante-wa img { width: 30px; height: 30px; filter: brightness(0) invert(1); }
 
-            } catch (error) {
-                console.error("Error al cargar productos: ", error);
-                document.getElementById("contenedorProductos").innerHTML = "<p style='color:red; text-align:center; width:100%; grid-column:1/-1;'>Error al conectar con el catálogo.</p>";
-                ocultarPantallaCarga();
-            }
-        });
-
-        function renderizarProductos() {
-            const contenedor = document.getElementById("contenedorProductos");
-            contenedor.innerHTML = "";
-
-            // Copia para ordenar sin alterar la original
-            let productosFiltrados = [...listaProductosGlobal];
-
-            // 1. Filtrar por búsqueda
-            if (terminoBusqueda) {
-                productosFiltrados = productosFiltrados.filter(p => p.nombre.toLowerCase().includes(terminoBusqueda));
-            }
-
-            // 2. Filtrar por categoría / drop
-            if (categoriaActiva !== "todos") {
-                if (categoriaActiva === "drop") {
-                    productosFiltrados = productosFiltrados.filter(p => p.esDrop === true);
-                } else {
-                    productosFiltrados = productosFiltrados.filter(p => p.categoria === categoriaActiva);
-                }
-            }
-
-            // 3. Filtrar por subcategoría
-            if (subcategoriaActiva !== "todos" && categoriaActiva !== "drop") {
-                productosFiltrados = productosFiltrados.filter(p => p.subcategoria === subcategoriaActiva);
-            }
-
-            // 4. Ordenar por precio o recientes
-            if (ordenActual === "menor-mayor") {
-                productosFiltrados.sort((a, b) => a.precio - b.precio);
-            } else if (ordenActual === "mayor-menor") {
-                productosFiltrados.sort((a, b) => b.precio - a.precio);
-            }
-
-            if (productosFiltrados.length === 0) {
-                contenedor.innerHTML = "<p style='color:#888; text-align:center; width:100%; grid-column:1/-1;'>No se encontraron accesorios con estos filtros.</p>";
-                return;
-            }
-
-            productosFiltrados.forEach((producto) => {
-                const precioFormateado = new Intl.NumberFormat('es-CO').format(producto.precio);
-                
-                let bloquePrecio = "";
-                let badgeOferta = "";
-                if(producto.precioAnterior && producto.precioAnterior > producto.precio) {
-                    const precioAntFormateado = new Intl.NumberFormat('es-CO').format(producto.precioAnterior);
-                    bloquePrecio = `<span class="precio-viejo">$ ${precioAntFormateado}</span>`;
-                    badgeOferta = `<div class="badge-oferta">Oferta</div>`;
-                }
-                
-                const estaAgotado = (producto.cantidad === 0);
-                const badgeAgotado = estaAgotado ? `<div class="badge-agotado">Agotado</div>` : "";
-                const claseImgAgotado = estaAgotado ? `img-agotada` : "";
-
-                const tarjetaHTML = `
-                    <article class="tarjeta">
-                        <div class="imagen-caja tarjeta-clicable" data-json='${JSON.stringify(producto)}'>
-                            ${badgeAgotado}
-                            ${!estaAgotado ? badgeOferta : ""}
-                            <img src="${producto.imagen}" alt="${producto.nombre}" class="${claseImgAgotado}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;">
-                        </div>
-                        <div class="info-caja">
-                            <span class="categoria">${producto.categoria.toUpperCase()}</span>
-                            <h3 class="tarjeta-clicable" data-json='${JSON.stringify(producto)}' style="cursor:pointer;">${producto.nombre}</h3>
-                            <div class="precios">
-                                ${bloquePrecio}
-                                <span class="precio-nuevo">$ ${precioFormateado}</span>
-                            </div>
-                            <button class="btn-whatsapp tarjeta-clicable" data-json='${JSON.stringify(producto)}' style="border:none; cursor:pointer; width:100%;">Ver Detalles</button>
-                        </div>
-                    </article>
-                `;
-                contenedor.innerHTML += tarjetaHTML;
-            });
-
-            configurarModal();
-        }
-
-        async function verificarYRenderizarDrop() {
-            try {
-                const docRef = doc(db, "configuracion", "dropMes");
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists() && docSnap.data().nombreDrop) {
-                    nombreDropActual = docSnap.data().nombreDrop;
-                    const contenedorFiltros = document.getElementById("contenedorFiltrosPrincipales");
-                    contenedorFiltros.innerHTML += `
-                        <button class="filtro-btn filtro-btn-drop" data-cat="drop">✨ ${nombreDropActual}</button>
-                    `;
-                }
-            } catch (e) {
-                console.error("Error cargando configuración de drop:", e);
-            }
-        }
-
-        function ocultarPantallaCarga() {
-            const carga = document.getElementById("pantalla-carga");
-            carga.style.opacity = "0";
-            setTimeout(() => carga.style.display = "none", 600);
-        }
-
-        function configurarModalNosotros() {
-            const modalNosotros = document.getElementById("modalNosotros");
-            const btnNosotros = document.getElementById("btnNosotros");
-            const btnCerrarNosotros = document.getElementById("btnCerrarNosotros");
-
-            btnNosotros.addEventListener("click", (e) => {
-                e.preventDefault();
-                modalNosotros.classList.add("activo");
-            });
-
-            btnCerrarNosotros.addEventListener("click", () => modalNosotros.classList.remove("activo"));
-            modalNosotros.addEventListener("click", (e) => {
-                if(e.target === modalNosotros) modalNosotros.classList.remove("activo");
-            });
-        }
-
-        function configurarModal() {
-            const modal = document.getElementById("modalDetalle");
-            const btnCerrar = document.getElementById("btnCerrarModal");
-
-            document.querySelectorAll(".tarjeta-clicable").forEach(elemento => {
-                elemento.addEventListener("click", (e) => {
-                    const datos = JSON.parse(e.currentTarget.getAttribute("data-json"));
-                    abrirModal(datos);
-                });
-            });
-
-            btnCerrar.addEventListener("click", () => modal.classList.remove("activo"));
-            modal.addEventListener("click", (e) => {
-                if(e.target === modal) modal.classList.remove("activo");
-            });
-        }
-
-        function abrirModal(prod) {
-            const modal = document.getElementById("modalDetalle");
-            document.getElementById("modalImg").src = prod.imagen;
-            document.getElementById("modalCat").innerText = `${prod.categoria.toUpperCase()} / ${prod.subcategoria.toUpperCase()}`;
-            document.getElementById("modalNombre").innerText = prod.nombre;
-            document.getElementById("modalDesc").innerText = prod.descripcion || "Pieza exclusiva seleccionada bajo los más altos estándares de diseño en Vestigio.";
-            
-            const precioFormateado = new Intl.NumberFormat('es-CO').format(prod.precio);
-            let preciosHTML = `<span class="precio-nuevo">$ ${precioFormateado}</span>`;
-            if(prod.precioAnterior && prod.precioAnterior > prod.precio) {
-                const antFormateado = new Intl.NumberFormat('es-CO').format(prod.precioAnterior);
-                preciosHTML = `<span class="precio-viejo">$ ${antFormateado}</span> <span class="precio-nuevo">$ ${precioFormateado}</span>`;
-            }
-            document.getElementById("modalPrecios").innerHTML = preciosHTML;
-
-            const contenedorBoton = document.getElementById("modalBotonContenedor");
-            const estaAgotado = (prod.cantidad === 0);
-
-            if(estaAgotado) {
-                contenedorBoton.innerHTML = `<button class="btn-whatsapp btn-agotado" disabled style="width:100%;">Agotado temporalmente</button>`;
-            } else {
-                const mensajeWa = `Hola, vengo de la página web y quiero pedir: ${prod.nombre}`;
-                const linkWa = `https://wa.me/${telefonoVestigio}?text=${encodeURIComponent(mensajeWa)}`;
-                contenedorBoton.innerHTML = `<a href="${linkWa}" target="_blank" class="btn-whatsapp" style="display:block; text-align:center; text-decoration:none;">Pedir por WhatsApp</a>`;
-            }
-
-            modal.classList.add("activo");
-        }
-
-        const subFiltrosJoyas = [
-            { id: "todos", text: "Todo" }, { id: "cadenas", text: "Cadenas" },
-            { id: "pulseras", text: "Pulseras" }, { id: "aretes", text: "Aretes" },
-            { id: "dijes", text: "Dijes" }, { id: "anillos", text: "Anillos" }
-        ];
-        const subFiltrosRelojes = [
-            { id: "todos", text: "Todo" }, { id: "casuales", text: "Casuales" },
-            { id: "deportivos", text: "Deportivos" }, { id: "elegantes", text: "Elegantes" }
-        ];
-
-        function renderizarSubFiltros(categoria) {
-            const contenedorSubFiltros = document.getElementById("contenedorSubFiltros");
-            if (categoria === "drop") {
-                contenedorSubFiltros.innerHTML = "";
-                subcategoriaActiva = "todos";
-                return;
-            }
-            const opciones = (categoria === "relojes") ? subFiltrosRelojes : subFiltrosJoyas;
-            
-            contenedorSubFiltros.innerHTML = opciones.map(opt => 
-                `<button class="sub-filtro-btn ${opt.id === 'todos' ? 'activo' : ''}" data-sub="${opt.id}">${opt.text}</button>`
-            ).join('');
-
-            document.querySelectorAll(".sub-filtro-btn").forEach(boton => {
-                boton.addEventListener("click", () => {
-                    document.querySelectorAll(".sub-filtro-btn").forEach(b => b.classList.remove("activo"));
-                    boton.classList.add("activo");
-                    subcategoriaActiva = boton.getAttribute("data-sub");
-                    renderizarProductos();
-                });
-            });
-            subcategoriaActiva = "todos";
-        }
-
-        function configurarFiltrosGlobales() {
-            const inputBuscador = document.getElementById("buscadorProductos");
-            const selectOrdenar = document.getElementById("selectOrdenar");
-
-            inputBuscador.addEventListener("input", (e) => {
-                terminoBusqueda = e.target.value.toLowerCase();
-                renderizarProductos();
-            });
-
-            selectOrdenar.addEventListener("change", (e) => {
-                ordenActual = e.target.value;
-                renderizarProductos();
-            });
-
-            // Delegación de eventos para los botones de categoría inyectados dinámicamente
-            document.getElementById("contenedorFiltrosPrincipales").addEventListener("click", (e) => {
-                const boton = e.target.closest(".filtro-btn");
-                if (!boton) return;
-
-                document.querySelectorAll(".filtro-btn").forEach(b => b.classList.remove("activo"));
-                boton.classList.add("activo");
-                categoriaActiva = boton.getAttribute("data-cat");
-                renderizarSubFiltros(categoriaActiva);
-                renderizarProductos();
-            });
-        }
-    </script>
-</body>
-</html>
+@media (max-width: 768px) {
+    header { padding: 15px 20px; flex-direction: column; gap: 12px; }
+    .contenedor-productos { padding: 0 20px 40px 20px; grid-template-columns: 1fr; }
+    .hero-banner h1 { font-size: 26px; }
+    .marca-agua-fondo { font-size: 70vw; }
+}
