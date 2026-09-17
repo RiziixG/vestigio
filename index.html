@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ESTILOS NUEVOS: Pantalla de Carga (Splash Screen) */
         #pantalla-carga {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #050505; display: flex; flex-direction: column;
@@ -24,7 +23,6 @@
             50% { opacity: 1; transform: scale(1.02); }
         }
 
-        /* ESTILOS NUEVOS: Ventana de Detalle de Producto (Modal) */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
@@ -53,7 +51,6 @@
     </style>
 </head>
 <body>
-    <!-- PANTALLA DE CARGA INICIAL -->
     <div id="pantalla-carga">
         <div class="logo-carga">V</div>
     </div>
@@ -91,7 +88,6 @@
         </div>
     </main>
 
-    <!-- VENTANA MODAL DE DETALLE DE PRODUCTO -->
     <div class="modal-overlay" id="modalDetalle">
         <div class="modal-contenido">
             <button class="modal-cerrar" id="btnCerrarModal">&times;</button>
@@ -101,11 +97,9 @@
                     <span id="modalCat" class="categoria" style="margin-bottom: 5px; display:block;">CATEGORÍA</span>
                     <h2 id="modalNombre" style="font-weight: 400; font-size: 22px; color: #fff; margin-bottom: 10px;">Nombre</h2>
                     <div class="precios" id="modalPrecios"></div>
-                    <p class="modal-descripcion" id="modalDesc">Pieza exclusiva seleccionada bajo los más altos estándares de diseño y durabilidad en Vestigio.</p>
+                    <p class="modal-descripcion" id="modalDesc">Descripción...</p>
                 </div>
-                <div id="modalBotonContenedor">
-                    <!-- El botón de WhatsApp se inyecta aquí dinámicamente -->
-                </div>
+                <div id="modalBotonContenedor"></div>
             </div>
         </div>
     </div>
@@ -208,7 +202,6 @@
             setTimeout(() => carga.style.display = "none", 600);
         }
 
-        // Lógica del Modal (Detalle del producto)
         function configurarModal() {
             const modal = document.getElementById("modalDetalle");
             const btnCerrar = document.getElementById("btnCerrarModal");
@@ -231,6 +224,7 @@
             document.getElementById("modalImg").src = prod.imagen;
             document.getElementById("modalCat").innerText = `${prod.categoria.toUpperCase()} / ${prod.subcategoria.toUpperCase()}`;
             document.getElementById("modalNombre").innerText = prod.nombre;
+            document.getElementById("modalDesc").innerText = prod.descripcion || "Pieza exclusiva de Vestigio.";
             
             const precioFormateado = new Intl.NumberFormat('es-CO').format(prod.precio);
             let preciosHTML = `<span class="precio-nuevo">$ ${precioFormateado}</span>`;
