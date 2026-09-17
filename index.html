@@ -3,158 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vestigio | Accesorios en Plata y Acero</title>
+    <title>Panel de Administración | Vestigio</title>
     <link rel="icon" type="image/png" href="img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        #pantalla-carga {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #050505; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 9999;
-            transition: opacity 0.6s ease;
-        }
-        .logo-carga {
-            font-family: 'Cinzel', serif; font-size: 50px; color: #fff;
-            letter-spacing: 8px; font-weight: 700; animation: latido 1.5s infinite ease-in-out;
-        }
-        @keyframes latido {
-            0%, 100% { opacity: 0.3; transform: scale(0.98); }
-            50% { opacity: 1; transform: scale(1.02); }
-        }
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(6px);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-        }
-        .modal-overlay.activo { opacity: 1; pointer-events: auto; }
-        .modal-contenido {
-            background: #0a0a0a; border: 1px solid #222; width: 90%; max-width: 850px;
-            border-radius: 6px; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr;
-            position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.9);
-        }
-        .modal-imagen { width: 100%; height: 100%; min-height: 400px; background: #0c0c0c; object-fit: cover; }
-        .modal-info { padding: 40px; display: flex; flex-direction: column; justify-content: space-between; }
-        .modal-cerrar {
-            position: absolute; top: 15px; right: 20px; background: transparent;
-            border: none; color: #fff; font-size: 24px; cursor: pointer; z-index: 10;
-        }
-        .modal-descripcion { color: #888; font-size: 13px; line-height: 1.7; margin: 15px 0; }
+        .panel-admin { max-width: 650px; margin: 40px auto; background: #0a0a0a; padding: 30px; border: 1px solid #1a1a1a; border-radius: 8px; }
+        .form-grupo { margin-bottom: 20px; }
+        .form-fila { display: flex; gap: 15px; } 
+        .form-fila .form-grupo { flex: 1; }
+        label { display: block; color: #888; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        input, select, textarea { width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; border-radius: 4px; font-family: inherit; }
+        input:focus, select:focus, textarea:focus { border-color: #666; outline: none; }
+        .btn-guardar { background: #ffffff; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.3s; }
+        .btn-guardar:hover { background: #25D366; color: white; }
+        .btn-secundario { background: #222; color: #fff; border: 1px solid #444; padding: 10px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.3s; margin-top: 10px; }
+        .btn-secundario:hover { background: #333; }
+        input[type="file"] { cursor: pointer; padding: 10px; color: #aaa; }
         
-        .garantias-caja {
-            border-top: 1px solid #1a1a1a; padding-top: 15px; margin-top: 15px;
-            display: flex; flex-direction: column; gap: 6px; font-size: 11px; color: #666;
-            text-transform: uppercase; letter-spacing: 1px;
-        }
+        .separador { border-color: #1a1a1a; margin: 40px 0; border-style: solid; border-width: 1px 0 0 0; }
+        .item-inventario { background: #111; padding: 15px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #333; position: relative; }
+        .item-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 10px; }
+        .item-header strong { color: #fff; font-size: 15px; }
+        .item-finanzas { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-bottom: 10px; }
+        .dato-utilidad { color: #25d366; font-weight: bold; }
+        .item-controles { display: flex; justify-content: space-between; align-items: center; }
+        .control-stock { display: flex; align-items: center; gap: 10px; background: #000; padding: 5px 10px; border-radius: 4px; border: 1px solid #333; }
+        .btn-stock { background: #333; color: white; border: none; width: 25px; height: 25px; border-radius: 3px; cursor: pointer; font-weight: bold; }
+        .btn-stock:hover { background: #555; }
+        .cantidad-actual { color: #fff; font-weight: bold; min-width: 20px; text-align: center; }
+        .btn-eliminar { background: transparent; color: #ff4444; border: 1px solid #ff4444; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; text-transform: uppercase; }
+        .btn-eliminar:hover { background: #ff4444; color: white; }
+        
+        .resumen-global { background: #1a1a1a; padding: 15px; border-radius: 4px; margin-bottom: 20px; text-align: center; color: #ccc; font-size: 14px; border: 1px dashed #333; }
+        .alerta-roja { color: #ff3333; font-size: 10px; font-weight: bold; border: 1px solid #ff3333; padding: 2px 5px; border-radius: 3px; margin-left: 10px; }
 
-        .modal-nosotros-contenido {
-            background: #0a0a0a; border: 1px solid #222; width: 90%; max-width: 550px;
-            padding: 40px; border-radius: 6px; position: relative; text-align: center;
+        #toastNotificacion {
+            position: fixed; top: 20px; right: 20px; background: #fff; color: #000;
+            padding: 12px 25px; border-radius: 4px; font-size: 12px; font-weight: bold;
+            letter-spacing: 1px; z-index: 9999; opacity: 0; transition: opacity 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); pointer-events: none; text-transform: uppercase;
         }
-        .modal-nosotros-contenido h2 { font-family: 'Cinzel', serif; font-weight: 500; font-size: 24px; color: #fff; margin-bottom: 20px; letter-spacing: 3px; }
-        .modal-nosotros-contenido p { color: #888; font-size: 13px; line-height: 1.8; margin-bottom: 15px; }
-
-        @media (max-width: 768px) {
-            .modal-contenido { grid-template-columns: 1fr; max-height: 90vh; overflow-y: auto; }
-            .modal-imagen { height: 250px; min-height: 250px; }
-            .modal-info { padding: 25px; }
-        }
+        #toastNotificacion.mostrar { opacity: 1; }
     </style>
+    
+    <script>
+        const clave = prompt("Ingresa la contraseña de administrador:");
+        if (clave !== "Vestigio2026") {
+            document.documentElement.innerHTML = "<body style='background:#050505;'><h1 style='color:red; text-align:center; font-family:sans-serif; margin-top:100px;'>ACCESO DENEGADO</h1></body>";
+            window.stop();
+        }
+    </script>
 </head>
 <body>
-    <div class="marca-agua-fondo">V</div>
-
-    <div id="pantalla-carga">
-        <div class="logo-carga">V</div>
-    </div>
-
-    <div class="barra-anuncio">
-        Envíos seguros a toda Colombia • Entregas en Santa Marta
-    </div>
+    <div id="toastNotificacion">Mensaje del sistema</div>
 
     <header>
-        <a href="#" class="logo-texto">VESTIGIO</a>
-        <nav>
-            <a id="btnNosotros" href="#">Nosotros</a>
-        </nav>
+        <div class="logo-texto">VESTIGIO - ADMIN</div>
+        <nav><a href="index.html">Volver al Catálogo</a></nav>
     </header>
 
-    <section class="hero-banner">
-        <h1>Colección Exclusiva</h1>
-        <p>Plata 925 • Acero Inoxidable • Oro</p>
-    </section>
-
     <main>
-        <div class="buscador-contenedor">
-            <input type="text" id="buscadorProductos" placeholder="Buscar accesorio (Ej. Cadena Cubana)...">
-        </div>
+        <div class="panel-admin">
+            <!-- SECCIÓN: CONTROL DEL DROP / TEMPORADA -->
+            <h2 style="margin-bottom: 15px; font-weight: 300;">Gestión de Drop / Temporada</h2>
+            <div class="form-grupo">
+                <label>Mensaje del Banner Temporal (Ej: Especial Amor y Amistad • Hasta 20% Off)</label>
+                <input type="text" id="inputDropMes" placeholder="Ej: Estamos creando las mejores ofertas para ti">
+            </div>
+            <button class="btn-secundario" id="btnGuardarDrop">Actualizar Drop en la Web</button>
 
-        <div class="filtros">
-            <button class="filtro-btn activo" data-cat="todos">Todos</button>
-            <button class="filtro-btn" data-cat="plata">Plata 925</button>
-            <button class="filtro-btn" data-cat="acero">Acero Inoxidable</button>
-            <button class="filtro-btn" data-cat="oro">Oro</button>
-            <button class="filtro-btn" data-cat="relojes">Relojes</button>
-        </div>
+            <hr class="separador">
 
-        <div class="sub-filtros" id="contenedorSubFiltros"></div>
+            <h2 style="margin-bottom: 25px; font-weight: 300;">Registrar Nueva Joya</h2>
+            
+            <div class="form-grupo">
+                <label>Nombre del Accesorio</label>
+                <input type="text" id="nombreProducto" placeholder="Ej: Reloj Casio o Cadena Cubana">
+            </div>
 
-        <div class="contenedor-productos" id="contenedorProductos">
-            <p style="text-align: center; color: #888; width: 100%; grid-column: 1 / -1;">Cargando colección...</p>
+            <div class="form-grupo">
+                <label>Descripción Comercial</label>
+                <textarea id="descripcionProducto" rows="3" placeholder="Ej: Reloj clásico en acero inoxidable resistente al agua..."></textarea>
+            </div>
+
+            <div class="form-fila">
+                <div class="form-grupo">
+                    <label>Tu Costo</label>
+                    <input type="number" id="costoProducto" placeholder="Ej: 20000">
+                </div>
+                <div class="form-grupo">
+                    <label>Precio de Venta</label>
+                    <input type="number" id="precioProducto" placeholder="Ej: 45000">
+                </div>
+                <div class="form-grupo">
+                    <label>Precio Anterior (Opcional)</label>
+                    <input type="number" id="precioAnteriorProducto" placeholder="Ej: 60000">
+                </div>
+            </div>
+
+            <div class="form-fila">
+                <div class="form-grupo">
+                    <label>Cantidad Inicial (Stock)</label>
+                    <input type="number" id="cantidadProducto" placeholder="Ej: 5" value="1">
+                </div>
+                <div class="form-grupo">
+                    <label>Categoría Principal</label>
+                    <select id="categoriaProducto">
+                        <option value="plata">Plata 925</option>
+                        <option value="acero">Acero Inoxidable</option>
+                        <option value="oro">Oro</option>
+                        <option value="relojes">Relojes</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grupo">
+                <label>Sub-Categoría</label>
+                <select id="subCategoriaProducto">
+                    <option value="cadenas">Cadenas</option>
+                    <option value="pulseras">Pulseras</option>
+                    <option value="aretes">Aretes</option>
+                    <option value="dijes">Dijes</option>
+                    <option value="anillos">Anillos</option>
+                </select>
+            </div>
+
+            <div class="form-grupo">
+                <label>Subir Foto del Producto</label>
+                <input type="file" id="imagenProducto" accept="image/*">
+            </div>
+
+            <button class="btn-guardar" id="btnGuardar">Registrar Producto en el Sistema</button>
+
+            <hr class="separador">
+            <h2 style="margin-bottom: 15px; font-weight: 300;">Control de Inventario</h2>
+            <div class="resumen-global" id="resumenGlobal">Calculando capital...</div>
+            <div id="tablaInventario"><p style="color: #888; text-align: center;">Cargando productos...</p></div>
         </div>
     </main>
 
-    <!-- VENTANA MODAL DE DETALLE DE PRODUCTO -->
-    <div class="modal-overlay" id="modalDetalle">
-        <div class="modal-contenido">
-            <button class="modal-cerrar" id="btnCerrarModal">&times;</button>
-            <img id="modalImg" src="" alt="Detalle" class="modal-imagen">
-            <div class="modal-info">
-                <div>
-                    <span id="modalCat" class="categoria" style="margin-bottom: 5px; display:block;">CATEGORÍA</span>
-                    <h2 id="modalNombre" style="font-weight: 400; font-size: 22px; color: #fff; margin-bottom: 10px;">Nombre</h2>
-                    <div class="precios" id="modalPrecios"></div>
-                    <p class="modal-descripcion" id="modalDesc">Descripción...</p>
-                    
-                    <div class="garantias-caja">
-                        <span>✓ Garantía de autenticidad de materiales</span>
-                        <span>✓ Envíos seguros garantizados a toda Colombia</span>
-                    </div>
-                </div>
-                <div id="modalBotonContenedor" style="margin-top: 20px;"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- VENTANA MODAL "NOSOTROS" -->
-    <div class="modal-overlay" id="modalNosotros">
-        <div class="modal-nosotros-contenido">
-            <button class="modal-cerrar" id="btnCerrarNosotros">&times;</button>
-            <h2>VESTIGIO</h2>
-            <p>Curaduría exclusiva de joyería fina y relojería con altos estándares de diseño, resistencia y elegancia atemporal.</p>
-            <p>Cada pieza está seleccionada para perdurar y elevar tu estilo diario, combinando metales nobles y acabados impecables.</p>
-            <p style="color: #fff; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-top: 20px;">Santa Marta • Colombia</p>
-        </div>
-    </div>
-
-    <footer>
-        <p>Vestigio © 2026. Todos los derechos reservados.</p>
-        <!-- Enlace corregido a tu Instagram real -->
-        <p style="margin-top: 8px;"><a href="https://www.instagram.com/vestigi.o/" target="_blank">Síguenos en Instagram (@vestigi.o)</a></p>
-        <div class="enlace-admin-discreto">
-            <a href="admin.html">Panel Admin</a>
-        </div>
-    </footer>
-
-    <a href="https://wa.me/573053030991?text=Hola,%20quisiera%20más%20información%20sobre%20los%20accesorios%20de%20Vestigio." target="_blank" class="btn-flotante-wa">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Vestigio">
-    </a>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCdpGtJujgdlcmrTYzT26G_cudU637EAMA",
@@ -167,210 +158,229 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const imgbbApiKey = "69d3248964e2cdc2d6c16587c88b4866";
+        const formatoCO = new Intl.NumberFormat('es-CO');
 
-        let categoriaActiva = "todos";
-        let subcategoriaActiva = "todos";
-        let terminoBusqueda = "";
-        const telefonoVestigio = "573053030991"; 
+        function mostrarToast(mensaje) {
+            const toast = document.getElementById("toastNotificacion");
+            toast.innerText = mensaje;
+            toast.classList.add("mostrar");
+            setTimeout(() => toast.classList.remove("mostrar"), 3500);
+        }
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            const contenedor = document.getElementById("contenedorProductos");
-            renderizarSubFiltros("todos");
-            configurarModalNosotros();
-
+        // Cargar el mensaje de Drop actual al iniciar el admin
+        async function cargarConfiguracionDrop() {
             try {
-                const querySnapshot = await getDocs(collection(db, "productos"));
-                contenedor.innerHTML = ""; 
-
-                if (querySnapshot.empty) {
-                    contenedor.innerHTML = "<p style='color:#888;'>Aún no hay productos en el catálogo.</p>";
-                    ocultarPantallaCarga();
-                    return;
+                const docRef = doc(db, "configuracion", "dropMes");
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    document.getElementById("inputDropMes").value = docSnap.data().mensaje || "";
                 }
+            } catch (e) {
+                console.error("Error cargando drop:", e);
+            }
+        }
+        cargarConfiguracionDrop();
 
-                querySnapshot.forEach((doc) => {
-                    const producto = doc.data();
-                    const precioFormateado = new Intl.NumberFormat('es-CO').format(producto.precio);
-                    
-                    let bloquePrecio = "";
-                    let badgeOferta = "";
-                    if(producto.precioAnterior && producto.precioAnterior > producto.precio) {
-                        const precioAntFormateado = new Intl.NumberFormat('es-CO').format(producto.precioAnterior);
-                        bloquePrecio = `<span class="precio-viejo">$ ${precioAntFormateado}</span>`;
-                        badgeOferta = `<div class="badge-oferta">Oferta</div>`;
-                    }
-                    
-                    const estaAgotado = (producto.cantidad === 0);
-                    const badgeAgotado = estaAgotado ? `<div class="badge-agotado">Agotado</div>` : "";
-                    const claseImgAgotado = estaAgotado ? `img-agotada` : "";
-
-                    const tarjetaHTML = `
-                        <article class="tarjeta" data-cat="${producto.categoria}" data-sub="${producto.subcategoria}" data-nombre="${producto.nombre.toLowerCase()}">
-                            <div class="imagen-caja tarjeta-clicable" data-json='${JSON.stringify(producto)}'>
-                                ${badgeAgotado}
-                                ${!estaAgotado ? badgeOferta : ""}
-                                <img src="${producto.imagen}" alt="${producto.nombre}" class="${claseImgAgotado}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;">
-                            </div>
-                            <div class="info-caja">
-                                <span class="categoria">${producto.categoria.toUpperCase()}</span>
-                                <h3 class="tarjeta-clicable" data-json='${JSON.stringify(producto)}' style="cursor:pointer;">${producto.nombre}</h3>
-                                <div class="precios">
-                                    ${bloquePrecio}
-                                    <span class="precio-nuevo">$ ${precioFormateado}</span>
-                                </div>
-                                <button class="btn-whatsapp tarjeta-clicable" data-json='${JSON.stringify(producto)}' style="border:none; cursor:pointer; width:100%;">Ver Detalles</button>
-                            </div>
-                        </article>
-                    `;
-                    contenedor.innerHTML += tarjetaHTML;
-                });
-
-                configurarFiltrosGlobales();
-                configurarModal();
-                ocultarPantallaCarga();
-
-            } catch (error) {
-                console.error("Error al cargar productos: ", error);
-                contenedor.innerHTML = "<p style='color:red;'>Error al conectar con el catálogo.</p>";
-                ocultarPantallaCarga();
+        // Guardar el mensaje del Drop
+        document.getElementById("btnGuardarDrop").addEventListener("click", async () => {
+            const mensajeDrop = document.getElementById("inputDropMes").value;
+            try {
+                await setDoc(doc(db, "configuracion", "dropMes"), { mensaje: mensajeDrop });
+                mostrarToast("¡Drop actualizado en la tienda!");
+            } catch (e) {
+                console.error("Error al guardar drop:", e);
+                mostrarToast("Error al actualizar el drop");
             }
         });
 
-        function ocultarPantallaCarga() {
-            const carga = document.getElementById("pantalla-carga");
-            carga.style.opacity = "0";
-            setTimeout(() => carga.style.display = "none", 600);
-        }
+        const selectCat = document.getElementById("categoriaProducto");
+        const selectSub = document.getElementById("subCategoriaProducto");
+        
+        const opcionesJoyas = `
+            <option value="cadenas">Cadenas</option>
+            <option value="pulseras">Pulseras</option>
+            <option value="aretes">Aretes</option>
+            <option value="dijes">Dijes</option>
+            <option value="anillos">Anillos</option>
+        `;
+        const opcionesRelojes = `
+            <option value="casuales">Casuales</option>
+            <option value="deportivos">Deportivos</option>
+            <option value="elegantes">Elegantes</option>
+        `;
 
-        function configurarModalNosotros() {
-            const modalNosotros = document.getElementById("modalNosotros");
-            const btnNosotros = document.getElementById("btnNosotros");
-            const btnCerrarNosotros = document.getElementById("btnCerrarNosotros");
-
-            btnNosotros.addEventListener("click", (e) => {
-                e.preventDefault();
-                modalNosotros.classList.add("activo");
-            });
-
-            btnCerrarNosotros.addEventListener("click", () => modalNosotros.classList.remove("activo"));
-            modalNosotros.addEventListener("click", (e) => {
-                if(e.target === modalNosotros) modalNosotros.classList.remove("activo");
-            });
-        }
-
-        function configurarModal() {
-            const modal = document.getElementById("modalDetalle");
-            const btnCerrar = document.getElementById("btnCerrarModal");
-
-            document.querySelectorAll(".tarjeta-clicable").forEach(elemento => {
-                elemento.addEventListener("click", (e) => {
-                    const datos = JSON.parse(e.currentTarget.getAttribute("data-json"));
-                    abrirModal(datos);
-                });
-            });
-
-            btnCerrar.addEventListener("click", () => modal.classList.remove("activo"));
-            modal.addEventListener("click", (e) => {
-                if(e.target === modal) modal.classList.remove("activo");
-            });
-        }
-
-        function abrirModal(prod) {
-            const modal = document.getElementById("modalDetalle");
-            document.getElementById("modalImg").src = prod.imagen;
-            document.getElementById("modalCat").innerText = `${prod.categoria.toUpperCase()} / ${prod.subcategoria.toUpperCase()}`;
-            document.getElementById("modalNombre").innerText = prod.nombre;
-            document.getElementById("modalDesc").innerText = prod.descripcion || "Pieza exclusiva seleccionada bajo los más altos estándares de diseño en Vestigio.";
-            
-            const precioFormateado = new Intl.NumberFormat('es-CO').format(prod.precio);
-            let preciosHTML = `<span class="precio-nuevo">$ ${precioFormateado}</span>`;
-            if(prod.precioAnterior && prod.precioAnterior > prod.precio) {
-                const antFormateado = new Intl.NumberFormat('es-CO').format(prod.precioAnterior);
-                preciosHTML = `<span class="precio-viejo">$ ${antFormateado}</span> <span class="precio-nuevo">$ ${precioFormateado}</span>`;
-            }
-            document.getElementById("modalPrecios").innerHTML = preciosHTML;
-
-            const contenedorBoton = document.getElementById("modalBotonContenedor");
-            const estaAgotado = (prod.cantidad === 0);
-
-            if(estaAgotado) {
-                contenedorBoton.innerHTML = `<button class="btn-whatsapp btn-agotado" disabled style="width:100%;">Agotado temporalmente</button>`;
+        selectCat.addEventListener("change", (e) => {
+            if(e.target.value === "relojes") {
+                selectSub.innerHTML = opcionesRelojes;
             } else {
-                const mensajeWa = `Hola, vengo de la página web y quiero pedir: ${prod.nombre}`;
-                const linkWa = `https://wa.me/${telefonoVestigio}?text=${encodeURIComponent(mensajeWa)}`;
-                contenedorBoton.innerHTML = `<a href="${linkWa}" target="_blank" class="btn-whatsapp" style="display:block; text-align:center; text-decoration:none;">Pedir por WhatsApp</a>`;
+                selectSub.innerHTML = opcionesJoyas;
+            }
+        });
+
+        async function cargarInventario() {
+            const contenedor = document.getElementById("tablaInventario");
+            const resumen = document.getElementById("resumenGlobal");
+            
+            try {
+                const querySnapshot = await getDocs(collection(db, "productos"));
+                if(querySnapshot.empty){
+                    contenedor.innerHTML = "<p style='color:#888; text-align: center;'>No hay productos registrados.</p>";
+                    resumen.innerHTML = "Tu inventario está vacío.";
+                    return;
+                }
+                
+                let html = "";
+                let capitalInvertido = 0;
+                let gananciaProyectada = 0;
+                let totalPiezas = 0;
+
+                querySnapshot.forEach(documento => {
+                    const prod = documento.data();
+                    const costo = prod.costo || 0;
+                    const stock = prod.cantidad || 0;
+                    const precio = prod.precio || 0;
+                    const utilidadNeta = precio - costo;
+                    
+                    const letreroAgotado = (stock === 0) ? `<span class="alerta-roja">AGOTADO</span>` : "";
+
+                    capitalInvertido += (costo * stock);
+                    gananciaProyectada += (utilidadNeta * stock);
+                    totalPiezas += stock;
+
+                    html += `
+                    <div class="item-inventario">
+                        <div class="item-header">
+                            <strong>${prod.nombre} ${letreroAgotado}</strong>
+                            <span>${prod.categoria.toUpperCase()} - ${prod.subcategoria.toUpperCase()}</span>
+                        </div>
+                        <div class="item-finanzas">
+                            <span>Costo: $${formatoCO.format(costo)}</span>
+                            <span>Venta: $${formatoCO.format(precio)}</span>
+                            <span class="dato-utilidad">Utilidad: $${formatoCO.format(utilidadNeta)}/ud</span>
+                        </div>
+                        <div class="item-controles">
+                            <div class="control-stock">
+                                <span style="font-size: 10px; color:#888; text-transform:uppercase;">Stock</span>
+                                <button class="btn-stock btn-restar" data-id="${documento.id}" data-actual="${stock}">-</button>
+                                <span class="cantidad-actual" style="${stock === 0 ? 'color:#ff3333;' : ''}">${stock}</span>
+                                <button class="btn-stock btn-sumar" data-id="${documento.id}" data-actual="${stock}">+</button>
+                            </div>
+                            <button class="btn-eliminar" data-id="${documento.id}">Eliminar</button>
+                        </div>
+                    </div>`;
+                });
+                
+                contenedor.innerHTML = html;
+                resumen.innerHTML = `<strong>${totalPiezas} piezas en stock</strong> | Capital Invertido: $${formatoCO.format(capitalInvertido)} | Utilidad Potencial: <span style="color:#25d366;">$${formatoCO.format(gananciaProyectada)}</span>`;
+
+                document.querySelectorAll(".btn-sumar").forEach(btn => {
+                    btn.addEventListener("click", async (e) => {
+                        const idProd = e.target.getAttribute("data-id");
+                        const stockActual = parseInt(e.target.getAttribute("data-actual"));
+                        await updateDoc(doc(db, "productos", idProd), { cantidad: stockActual + 1 });
+                        mostrarToast("Stock actualizado (+1)");
+                        cargarInventario();
+                    });
+                });
+
+                document.querySelectorAll(".btn-restar").forEach(btn => {
+                    btn.addEventListener("click", async (e) => {
+                        const idProd = e.target.getAttribute("data-id");
+                        const stockActual = parseInt(e.target.getAttribute("data-actual"));
+                        if (stockActual > 0) {
+                            await updateDoc(doc(db, "productos", idProd), { cantidad: stockActual - 1 });
+                            mostrarToast("Stock actualizado (-1)");
+                            cargarInventario();
+                        }
+                    });
+                });
+
+                document.querySelectorAll(".btn-eliminar").forEach(btn => {
+                    btn.addEventListener("click", async (e) => {
+                        const idProd = e.target.getAttribute("data-id");
+                        if(confirm("¿Seguro que quieres eliminar este producto del sistema?")) {
+                            await deleteDoc(doc(db, "productos", idProd));
+                            mostrarToast("Producto eliminado del sistema");
+                            cargarInventario();
+                        }
+                    });
+                });
+
+            } catch (error) {
+                console.error("Error cargando inventario: ", error);
+                contenedor.innerHTML = "<p style='color:red;'>Error al cargar el inventario.</p>";
+            }
+        }
+
+        cargarInventario();
+
+        document.getElementById("btnGuardar").addEventListener("click", async () => {
+            const nombre = document.getElementById("nombreProducto").value;
+            const descripcion = document.getElementById("descripcionProducto").value;
+            const precio = document.getElementById("precioProducto").value;
+            const precioAnterior = document.getElementById("precioAnteriorProducto").value;
+            const costo = document.getElementById("costoProducto").value;
+            const cantidad = document.getElementById("cantidadProducto").value;
+            const categoria = document.getElementById("categoriaProducto").value;
+            const subcategoria = document.getElementById("subCategoriaProducto").value;
+            const inputArchivo = document.getElementById("imagenProducto");
+            const archivo = inputArchivo.files[0];
+
+            if(!nombre || !precio || !costo || !cantidad || !archivo) {
+                mostrarToast("Llena todos los campos obligatorios y sube una foto");
+                return;
             }
 
-            modal.classList.add("activo");
-        }
+            const btn = document.getElementById("btnGuardar");
+            btn.innerText = "Subiendo foto a la nube... ⏳";
+            btn.disabled = true;
 
-        const subFiltrosJoyas = [
-            { id: "todos", text: "Todo" }, { id: "cadenas", text: "Cadenas" },
-            { id: "pulseras", text: "Pulseras" }, { id: "aretes", text: "Aretes" },
-            { id: "dijes", text: "Dijes" }, { id: "anillos", text: "Anillos" }
-        ];
-        const subFiltrosRelojes = [
-            { id: "todos", text: "Todo" }, { id: "casuales", text: "Casuales" },
-            { id: "deportivos", text: "Deportivos" }, { id: "elegantes", text: "Elegantes" }
-        ];
+            try {
+                const formData = new FormData();
+                formData.append("image", archivo);
 
-        function renderizarSubFiltros(categoria) {
-            const contenedorSubFiltros = document.getElementById("contenedorSubFiltros");
-            const opciones = (categoria === "relojes") ? subFiltrosRelojes : subFiltrosJoyas;
-            
-            contenedorSubFiltros.innerHTML = opciones.map(opt => 
-                `<button class="sub-filtro-btn ${opt.id === 'todos' ? 'activo' : ''}" data-sub="${opt.id}">${opt.text}</button>`
-            ).join('');
+                const respuestaImgbb = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, { method: 'POST', body: formData });
+                const datosImgbb = await respuestaImgbb.json();
 
-            document.querySelectorAll(".sub-filtro-btn").forEach(boton => {
-                boton.addEventListener("click", () => {
-                    document.querySelectorAll(".sub-filtro-btn").forEach(b => b.classList.remove("activo"));
-                    boton.classList.add("activo");
-                    subcategoriaActiva = boton.getAttribute("data-sub");
-                    aplicarLogicaOcultar();
+                if (!datosImgbb.success) throw new Error("No se pudo subir la imagen.");
+                const urlDescarga = datosImgbb.data.url;
+
+                btn.innerText = "Guardando en Firebase... ⏳";
+
+                await addDoc(collection(db, "productos"), {
+                    nombre: nombre,
+                    descripcion: descripcion || "Pieza exclusiva seleccionada bajo los más altos estándares de diseño en Vestigio.",
+                    precio: Number(precio),
+                    precioAnterior: precioAnterior ? Number(precioAnterior) : 0,
+                    costo: Number(costo),
+                    cantidad: Number(cantidad),
+                    categoria: categoria,
+                    subcategoria: subcategoria,
+                    imagen: urlDescarga
                 });
-            });
-            subcategoriaActiva = "todos";
-        }
+                
+                mostrarToast("¡Joya registrada con éxito!");
+                
+                document.getElementById("nombreProducto").value = "";
+                document.getElementById("descripcionProducto").value = "";
+                document.getElementById("precioProducto").value = "";
+                document.getElementById("precioAnteriorProducto").value = "";
+                document.getElementById("costoProducto").value = "";
+                document.getElementById("cantidadProducto").value = "1";
+                inputArchivo.value = "";
+                btn.innerText = "Registrar Producto en el Sistema";
+                btn.disabled = false;
 
-        function aplicarLogicaOcultar() {
-            const tarjetas = document.querySelectorAll(".tarjeta");
-            tarjetas.forEach(tarjeta => {
-                const catProducto = tarjeta.getAttribute("data-cat");
-                const subProducto = tarjeta.getAttribute("data-sub");
-                const nombreProducto = tarjeta.getAttribute("data-nombre");
+                cargarInventario();
 
-                const cumpleCat = (categoriaActiva === "todos" || categoriaActiva === catProducto);
-                const cumpleSub = (subcategoriaActiva === "todos" || subcategoriaActiva === subProducto);
-                const cumpleBus = nombreProducto.includes(terminoBusqueda);
-
-                if (cumpleCat && cumpleSub && cumpleBus) {
-                    tarjeta.classList.remove("oculto");
-                } else {
-                    tarjeta.classList.add("oculto");
-                }
-            });
-        }
-
-        function configurarFiltrosGlobales() {
-            const botonesCategoria = document.querySelectorAll(".filtro-btn");
-            const inputBuscador = document.getElementById("buscadorProductos");
-
-            inputBuscador.addEventListener("input", (e) => {
-                terminoBusqueda = e.target.value.toLowerCase();
-                aplicarLogicaOcultar();
-            });
-
-            botonesCategoria.forEach(boton => {
-                boton.addEventListener("click", () => {
-                    botonesCategoria.forEach(b => b.classList.remove("activo"));
-                    boton.classList.add("activo");
-                    categoriaActiva = boton.getAttribute("data-cat");
-                    renderizarSubFiltros(categoriaActiva);
-                    aplicarLogicaOcultar();
-                });
-            });
-        }
+            } catch (error) {
+                console.error("Error: ", error);
+                mostrarToast("Hubo un error al guardar.");
+                btn.innerText = "Registrar Producto en el Sistema";
+                btn.disabled = false;
+            }
+        });
     </script>
 </body>
 </html>
