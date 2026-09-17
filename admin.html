@@ -168,7 +168,6 @@
             setTimeout(() => toast.classList.remove("mostrar"), 3500);
         }
 
-        // Cargar el mensaje de Drop actual al iniciar el admin
         async function cargarConfiguracionDrop() {
             try {
                 const docRef = doc(db, "configuracion", "dropMes");
@@ -182,7 +181,6 @@
         }
         cargarConfiguracionDrop();
 
-        // Guardar el mensaje del Drop
         document.getElementById("btnGuardarDrop").addEventListener("click", async () => {
             const mensajeDrop = document.getElementById("inputDropMes").value;
             try {
