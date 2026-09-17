@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vestigio | Accesorios en Plata y Acero</title>
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a href="#" class="logo-texto">VESTIGIO</a>
+        <nav>
+            <a href="#">Nosotros</a>
+            <a href="#">Contacto</a>
+        </nav>
+    </header>
+
+    <section class="hero-banner">
+        <h1>Colección Exclusiva</h1>
+        <p>Plata 925 • Acero Inoxidable • Oro</p>
+    </section>
+
+    <main>
+        <div class="buscador-contenedor">
+            <input type="text" id="buscadorProductos" placeholder="Buscar por nombre (Ej. Cadena Cubana)...">
+        </div>
+
+        <div class="filtros">
+            <button class="filtro-btn activo" data-cat="todos">Todos</button>
+            <button class="filtro-btn" data-cat="plata">Plata 925</button>
+            <button class="filtro-btn" data-cat="acero">Acero Inoxidable</button>
+            <button class="filtro-btn" data-cat="oro">Oro</button>
+            <button class="filtro-btn" data-cat="relojes">Relojes</button>
+        </div>
+
+        <!-- Contenedor dinámico de Sub-Filtros -->
+        <div class="sub-filtros" id="contenedorSubFiltros">
+            <!-- Se llena con JavaScript -->
+        </div>
+
+        <div class="contenedor-productos" id="contenedorProductos">
+            <p style="text-align: center; color: #888; width: 100%; grid-column: 1 / -1;">Cargando colección...</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>Vestigio © 2026. Entregas en Santa Marta y envíos a toda Colombia.</p>
+        <p style="margin-top: 10px;"><a href="#">Síguenos en Instagram</a></p>
+    </footer>
+
+    <a href="https://wa.me/573053030991?text=Hola,%20quisiera%20más%20información%20sobre%20los%20accesorios%20de%20Vestigio." target="_blank" class="btn-flotante-wa">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Vestigio">
+    </a>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCdpGtJujgdlcmrTYzT26G_cudU637EAMA",
+            authDomain: "vestigio-98e2d.firebaseapp.com",
+            projectId: "vestigio-98e2d",
+            storageBucket: "vestigio-98e2d.firebasestorage.app",
+            messagingSenderId: "6476709790",
+            appId: "1:6476709790:web:eea3788a7a5114e48da08f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let categoriaActiva = "todos";
+        let subcategoriaActiva = "todos";
+        let terminoBusqueda = "";
+        const telefonoVestigio = "573053030991"; 
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const contenedor = document.getElementById("contenedorProductos");
+            renderizarSubFiltros("todos"); // Carga los subfiltros iniciales (Joyas)
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "productos"));
+                contenedor.innerHTML = ""; 
+
+                if (querySnapshot.empty) {
+                    contenedor.innerHTML = "<p style='color:#888;'>Aún no hay productos en el catálogo.</p>";
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const producto = doc.data();
+                    const precioFormateado = new Intl.NumberFormat('es-CO').format(producto.precio);
+                    
+                    let bloquePrecio = "";
+                    let badgeOferta = "";
+                    if(producto.precioAnterior && producto.precioAnterior > producto.precio) {
+                        const precioAntFormateado = new Intl.NumberFormat('es-CO').format(producto.precioAnterior);
+                        bloquePrecio = `<span class="precio-viejo">$ ${precioAntFormateado}</span>`;
+                        badgeOferta = `<div class="badge-oferta">Oferta</div>`;
+                    }
+                    
+                    const estaAgotado = (producto.cantidad === 0);
+                    const badgeAgotado = estaAgotado ? `<div class="badge-agotado">Agotado</div>` : "";
+                    const claseImgAgotado = estaAgotado ? `img-agotada` : "";
+                    
+                    const mensajeWa = `Hola, vengo de la página web. Me interesa: ${producto.nombre}`;
+                    const linkWa = `https://wa.me/${telefonoVestigio}?text=${encodeURIComponent(mensajeWa)}`;
+
+                    let botonHTML = "";
+                    if(estaAgotado) {
+                        botonHTML = `<button class="btn-whatsapp btn-agotado" disabled>Agotado temporalmente</button>`;
+                    } else {
+                        botonHTML = `<a href="${linkWa}" target="_blank" class="btn-whatsapp">Pedir por WhatsApp</a>`;
+                    }
+
+                    const tarjetaHTML = `
+                        <article class="tarjeta" data-cat="${producto.categoria}" data-sub="${producto.subcategoria}" data-nombre="${producto.nombre.toLowerCase()}">
+                            <div class="imagen-caja">
+                                ${badgeAgotado}
+                                ${!estaAgotado ? badgeOferta : ""}
+                                <img src="${producto.imagen}" alt="${producto.nombre}" class="${claseImgAgotado}" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div class="info-caja">
+                                <span class="categoria">${producto.categoria.toUpperCase()}</span>
+                                <h3>${producto.nombre}</h3>
+                                <div class="precios">
+                                    ${bloquePrecio}
+                                    <span class="precio-nuevo">$ ${precioFormateado}</span>
+                                </div>
+                                ${botonHTML}
+                            </div>
+                        </article>
+                    `;
+                    contenedor.innerHTML += tarjetaHTML;
+                });
+
+                configurarFiltrosGlobales();
+
+            } catch (error) {
+                console.error("Error al cargar productos: ", error);
+                contenedor.innerHTML = "<p style='color:red;'>Error al conectar con el catálogo.</p>";
+            }
+        });
+
+        const subFiltrosJoyas = [
+            { id: "todos", text: "Todo" },
+            { id: "cadenas", text: "Cadenas" },
+            { id: "pulseras", text: "Pulseras" },
+            { id: "aretes", text: "Aretes" },
+            { id: "dijes", text: "Dijes" },
+            { id: "anillos", text: "Anillos" }
+        ];
+
+        const subFiltrosRelojes = [
+            { id: "todos", text: "Todo" },
+            { id: "casuales", text: "Casuales" },
+            { id: "deportivos", text: "Deportivos" },
+            { id: "elegantes", text: "Elegantes" }
+        ];
+
+        function renderizarSubFiltros(categoria) {
+            const contenedorSubFiltros = document.getElementById("contenedorSubFiltros");
+            const opciones = (categoria === "relojes") ? subFiltrosRelojes : subFiltrosJoyas;
+            
+            contenedorSubFiltros.innerHTML = opciones.map(opt => 
+                `<button class="sub-filtro-btn ${opt.id === 'todos' ? 'activo' : ''}" data-sub="${opt.id}">${opt.text}</button>`
+            ).join('');
+
+            // Agregar eventos de click a los botones recién creados
+            const botonesSubcategoria = document.querySelectorAll(".sub-filtro-btn");
+            botonesSubcategoria.forEach(boton => {
+                boton.addEventListener("click", () => {
+                    botonesSubcategoria.forEach(b => b.classList.remove("activo"));
+                    boton.classList.add("activo");
+                    subcategoriaActiva = boton.getAttribute("data-sub");
+                    aplicarLogicaOcultar();
+                });
+            });
+            subcategoriaActiva = "todos"; // Reseteamos el subfiltro al cambiar la categoría principal
+        }
+
+        function aplicarLogicaOcultar() {
+            const tarjetas = document.querySelectorAll(".tarjeta");
+            tarjetas.forEach(tarjeta => {
+                const catProducto = tarjeta.getAttribute("data-cat");
+                const subProducto = tarjeta.getAttribute("data-sub");
+                const nombreProducto = tarjeta.getAttribute("data-nombre");
+
+                const cumpleCat = (categoriaActiva === "todos" || categoriaActiva === catProducto);
+                const cumpleSub = (subcategoriaActiva === "todos" || subcategoriaActiva === subProducto);
+                const cumpleBus = nombreProducto.includes(terminoBusqueda);
+
+                if (cumpleCat && cumpleSub && cumpleBus) {
+                    tarjeta.classList.remove("oculto");
+                } else {
+                    tarjeta.classList.add("oculto");
+                }
+            });
+        }
+
+        function configurarFiltrosGlobales() {
+            const botonesCategoria = document.querySelectorAll(".filtro-btn");
+            const inputBuscador = document.getElementById("buscadorProductos");
+
+            inputBuscador.addEventListener("input", (e) => {
+                terminoBusqueda = e.target.value.toLowerCase();
+                aplicarLogicaOcultar();
+            });
+
+            botonesCategoria.forEach(boton => {
+                boton.addEventListener("click", () => {
+                    botonesCategoria.forEach(b => b.classList.remove("activo"));
+                    boton.classList.add("activo");
+                    categoriaActiva = boton.getAttribute("data-cat");
+                    
+                    // Cambiamos dinámicamente la barra de abajo
+                    renderizarSubFiltros(categoriaActiva);
+                    aplicarLogicaOcultar();
+                });
+            });
+        }
+    </script>
+</body>
+</html>

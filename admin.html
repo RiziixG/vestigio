@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración | Vestigio</title>
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .panel-admin { max-width: 650px; margin: 40px auto; background: #0a0a0a; padding: 30px; border: 1px solid #1a1a1a; border-radius: 8px; }
+        .form-grupo { margin-bottom: 20px; }
+        .form-fila { display: flex; gap: 15px; } 
+        .form-fila .form-grupo { flex: 1; }
+        label { display: block; color: #888; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        input, select { width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; border-radius: 4px; }
+        input:focus, select:focus { border-color: #666; outline: none; }
+        .btn-guardar { background: #ffffff; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.3s; }
+        .btn-guardar:hover { background: #25D366; color: white; }
+        input[type="file"] { cursor: pointer; padding: 10px; color: #aaa; }
+        
+        .separador { border-color: #1a1a1a; margin: 40px 0; border-style: solid; border-width: 1px 0 0 0; }
+        .item-inventario { background: #111; padding: 15px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #333; position: relative; }
+        .item-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 10px; }
+        .item-header strong { color: #fff; font-size: 15px; }
+        .item-finanzas { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-bottom: 10px; }
+        .dato-utilidad { color: #25d366; font-weight: bold; }
+        .item-controles { display: flex; justify-content: space-between; align-items: center; }
+        .control-stock { display: flex; align-items: center; gap: 10px; background: #000; padding: 5px 10px; border-radius: 4px; border: 1px solid #333; }
+        .btn-stock { background: #333; color: white; border: none; width: 25px; height: 25px; border-radius: 3px; cursor: pointer; font-weight: bold; }
+        .btn-stock:hover { background: #555; }
+        .cantidad-actual { color: #fff; font-weight: bold; min-width: 20px; text-align: center; }
+        .btn-eliminar { background: transparent; color: #ff4444; border: 1px solid #ff4444; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; text-transform: uppercase; }
+        .btn-eliminar:hover { background: #ff4444; color: white; }
+        
+        .resumen-global { background: #1a1a1a; padding: 15px; border-radius: 4px; margin-bottom: 20px; text-align: center; color: #ccc; font-size: 14px; border: 1px dashed #333; }
+        .alerta-roja { color: #ff3333; font-size: 10px; font-weight: bold; border: 1px solid #ff3333; padding: 2px 5px; border-radius: 3px; margin-left: 10px; }
+    </style>
+    
+    <script>
+        const clave = prompt("Ingresa la contraseña de administrador:");
+        if (clave !== "Vestigio2026") {
+            document.documentElement.innerHTML = "<body style='background:#050505;'><h1 style='color:red; text-align:center; font-family:sans-serif; margin-top:100px;'>ACCESO DENEGADO</h1></body>";
+            window.stop();
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="logo-texto">VESTIGIO - ADMIN</div>
+        <nav><a href="index.html">Volver al Catálogo</a></nav>
+    </header>
+
+    <main>
+        <div class="panel-admin">
+            <h2 style="margin-bottom: 25px; font-weight: 300;">Registrar Nueva Joya</h2>
+            
+            <div class="form-grupo">
+                <label>Nombre del Accesorio</label>
+                <input type="text" id="nombreProducto" placeholder="Ej: Pulsera Eslabones o Reloj Casio">
+            </div>
+
+            <div class="form-fila">
+                <div class="form-grupo">
+                    <label>Tu Costo</label>
+                    <input type="number" id="costoProducto" placeholder="Ej: 20000">
+                </div>
+                <div class="form-grupo">
+                    <label>Precio de Venta</label>
+                    <input type="number" id="precioProducto" placeholder="Ej: 45000">
+                </div>
+                <div class="form-grupo">
+                    <label>Precio Anterior (Opcional)</label>
+                    <input type="number" id="precioAnteriorProducto" placeholder="Ej: 60000 (Tachado)">
+                </div>
+            </div>
+
+            <div class="form-fila">
+                <div class="form-grupo">
+                    <label>Cantidad Inicial (Stock)</label>
+                    <input type="number" id="cantidadProducto" placeholder="Ej: 5" value="1">
+                </div>
+                <div class="form-grupo">
+                    <label>Categoría Principal</label>
+                    <select id="categoriaProducto">
+                        <option value="plata">Plata 925</option>
+                        <option value="acero">Acero Inoxidable</option>
+                        <option value="oro">Oro</option>
+                        <option value="relojes">Relojes</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grupo">
+                <label>Sub-Categoría (Cambia según la principal)</label>
+                <select id="subCategoriaProducto">
+                    <option value="cadenas">Cadenas</option>
+                    <option value="pulseras">Pulseras</option>
+                    <option value="aretes">Aretes</option>
+                    <option value="dijes">Dijes</option>
+                    <option value="anillos">Anillos</option>
+                </select>
+            </div>
+
+            <div class="form-grupo">
+                <label>Subir Foto del Producto</label>
+                <input type="file" id="imagenProducto" accept="image/*">
+            </div>
+
+            <button class="btn-guardar" id="btnGuardar">Registrar Producto en el Sistema</button>
+
+            <hr class="separador">
+            <h2 style="margin-bottom: 15px; font-weight: 300;">Control de Inventario</h2>
+            <div class="resumen-global" id="resumenGlobal">Calculando capital...</div>
+            <div id="tablaInventario"><p style="color: #888; text-align: center;">Cargando productos...</p></div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCdpGtJujgdlcmrTYzT26G_cudU637EAMA",
+            authDomain: "vestigio-98e2d.firebaseapp.com",
+            projectId: "vestigio-98e2d",
+            storageBucket: "vestigio-98e2d.firebasestorage.app",
+            messagingSenderId: "6476709790",
+            appId: "1:6476709790:web:eea3788a7a5114e48da08f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const imgbbApiKey = "69d3248964e2cdc2d6c16587c88b4866";
+        const formatoCO = new Intl.NumberFormat('es-CO');
+
+        // LÓGICA DINÁMICA DE CATEGORÍAS
+        const selectCat = document.getElementById("categoriaProducto");
+        const selectSub = document.getElementById("subCategoriaProducto");
+        
+        const opcionesJoyas = `
+            <option value="cadenas">Cadenas</option>
+            <option value="pulseras">Pulseras</option>
+            <option value="aretes">Aretes</option>
+            <option value="dijes">Dijes</option>
+            <option value="anillos">Anillos</option>
+        `;
+        const opcionesRelojes = `
+            <option value="casuales">Casuales</option>
+            <option value="deportivos">Deportivos</option>
+            <option value="elegantes">Elegantes</option>
+        `;
+
+        selectCat.addEventListener("change", (e) => {
+            if(e.target.value === "relojes") {
+                selectSub.innerHTML = opcionesRelojes;
+            } else {
+                selectSub.innerHTML = opcionesJoyas;
+            }
+        });
+
+        async function cargarInventario() {
+            const contenedor = document.getElementById("tablaInventario");
+            const resumen = document.getElementById("resumenGlobal");
+            
+            try {
+                const querySnapshot = await getDocs(collection(db, "productos"));
+                if(querySnapshot.empty){
+                    contenedor.innerHTML = "<p style='color:#888; text-align: center;'>No hay productos registrados.</p>";
+                    resumen.innerHTML = "Tu inventario está vacío.";
+                    return;
+                }
+                
+                let html = "";
+                let capitalInvertido = 0;
+                let gananciaProyectada = 0;
+                let totalPiezas = 0;
+
+                querySnapshot.forEach(documento => {
+                    const prod = documento.data();
+                    const costo = prod.costo || 0;
+                    const stock = prod.cantidad || 0;
+                    const precio = prod.precio || 0;
+                    const utilidadNeta = precio - costo;
+                    
+                    const letreroAgotado = (stock === 0) ? `<span class="alerta-roja">AGOTADO</span>` : "";
+
+                    capitalInvertido += (costo * stock);
+                    gananciaProyectada += (utilidadNeta * stock);
+                    totalPiezas += stock;
+
+                    html += `
+                    <div class="item-inventario">
+                        <div class="item-header">
+                            <strong>${prod.nombre} ${letreroAgotado}</strong>
+                            <span>${prod.categoria.toUpperCase()} - ${prod.subcategoria.toUpperCase()}</span>
+                        </div>
+                        <div class="item-finanzas">
+                            <span>Costo: $${formatoCO.format(costo)}</span>
+                            <span>Venta: $${formatoCO.format(precio)}</span>
+                            <span class="dato-utilidad">Utilidad: $${formatoCO.format(utilidadNeta)}/ud</span>
+                        </div>
+                        <div class="item-controles">
+                            <div class="control-stock">
+                                <span style="font-size: 10px; color:#888; text-transform:uppercase;">Stock</span>
+                                <button class="btn-stock btn-restar" data-id="${documento.id}" data-actual="${stock}">-</button>
+                                <span class="cantidad-actual" style="${stock === 0 ? 'color:#ff3333;' : ''}">${stock}</span>
+                                <button class="btn-stock btn-sumar" data-id="${documento.id}" data-actual="${stock}">+</button>
+                            </div>
+                            <button class="btn-eliminar" data-id="${documento.id}">Eliminar</button>
+                        </div>
+                    </div>`;
+                });
+                
+                contenedor.innerHTML = html;
+                resumen.innerHTML = `<strong>${totalPiezas} piezas en stock</strong> | Capital Invertido: $${formatoCO.format(capitalInvertido)} | Utilidad Potencial: <span style="color:#25d366;">$${formatoCO.format(gananciaProyectada)}</span>`;
+
+                document.querySelectorAll(".btn-sumar").forEach(btn => {
+                    btn.addEventListener("click", async (e) => {
+                        const idProd = e.target.getAttribute("data-id");
+                        const stockActual = parseInt(e.target.getAttribute("data-actual"));
+                        await updateDoc(doc(db, "productos", idProd), { cantidad: stockActual + 1 });
+                        cargarInventario();
+                    });
+                });
+
+                document.querySelectorAll(".btn-restar").forEach(btn => {
+                    btn.addEventListener("click", async (e) => {
+                        const idProd = e.target.getAttribute("data-id");
+                        const stockActual = parseInt(e.target.getAttribute("data-actual"));
+                        if (stockActual > 0) {
+                            await updateDoc(doc(db, "productos", idProd), { cantidad: stockActual - 1 });
+                            cargarInventario();
+                        }
+                    });
+                });
+
+                document.querySelectorAll(".btn-eliminar").forEach(btn => {
+                    btn.addEventListener("click", async (e) => {
+                        const idProd = e.target.getAttribute("data-id");
+                        if(confirm("¿Seguro que quieres eliminar este producto del sistema por completo?")) {
+                            await deleteDoc(doc(db, "productos", idProd));
+                            cargarInventario();
+                        }
+                    });
+                });
+
+            } catch (error) {
+                console.error("Error cargando inventario: ", error);
+                contenedor.innerHTML = "<p style='color:red;'>Error al cargar el inventario.</p>";
+            }
+        }
+
+        cargarInventario();
+
+        document.getElementById("btnGuardar").addEventListener("click", async () => {
+            const nombre = document.getElementById("nombreProducto").value;
+            const precio = document.getElementById("precioProducto").value;
+            const precioAnterior = document.getElementById("precioAnteriorProducto").value;
+            const costo = document.getElementById("costoProducto").value;
+            const cantidad = document.getElementById("cantidadProducto").value;
+            const categoria = document.getElementById("categoriaProducto").value;
+            const subcategoria = document.getElementById("subCategoriaProducto").value;
+            const inputArchivo = document.getElementById("imagenProducto");
+            const archivo = inputArchivo.files[0];
+
+            if(!nombre || !precio || !costo || !cantidad || !archivo) {
+                alert("Por favor llena todos los datos obligatorios y sube una foto.");
+                return;
+            }
+
+            const btn = document.getElementById("btnGuardar");
+            btn.innerText = "Subiendo foto a la nube... ⏳";
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append("image", archivo);
+
+                const respuestaImgbb = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, { method: 'POST', body: formData });
+                const datosImgbb = await respuestaImgbb.json();
+
+                if (!datosImgbb.success) throw new Error("No se pudo subir la imagen.");
+                const urlDescarga = datosImgbb.data.url;
+
+                btn.innerText = "Guardando información en Firebase... ⏳";
+
+                await addDoc(collection(db, "productos"), {
+                    nombre: nombre,
+                    precio: Number(precio),
+                    precioAnterior: precioAnterior ? Number(precioAnterior) : 0,
+                    costo: Number(costo),
+                    cantidad: Number(cantidad),
+                    categoria: categoria,
+                    subcategoria: subcategoria,
+                    imagen: urlDescarga
+                });
+                
+                alert("¡Joya registrada con éxito!");
+                
+                document.getElementById("nombreProducto").value = "";
+                document.getElementById("precioProducto").value = "";
+                document.getElementById("precioAnteriorProducto").value = "";
+                document.getElementById("costoProducto").value = "";
+                document.getElementById("cantidadProducto").value = "1";
+                inputArchivo.value = "";
+                btn.innerText = "Registrar Producto en el Sistema";
+                btn.disabled = false;
+
+                cargarInventario();
+
+            } catch (error) {
+                console.error("Error: ", error);
+                alert("Hubo un error al guardar.");
+                btn.innerText = "Registrar Producto en el Sistema";
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
