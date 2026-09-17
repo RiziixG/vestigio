@@ -35,6 +35,15 @@
         
         .resumen-global { background: #1a1a1a; padding: 15px; border-radius: 4px; margin-bottom: 20px; text-align: center; color: #ccc; font-size: 14px; border: 1px dashed #333; }
         .alerta-roja { color: #ff3333; font-size: 10px; font-weight: bold; border: 1px solid #ff3333; padding: 2px 5px; border-radius: 3px; margin-left: 10px; }
+
+        /* Notificaciones Toast elegantes */
+        #toastNotificacion {
+            position: fixed; top: 20px; right: 20px; background: #fff; color: #000;
+            padding: 12px 25px; border-radius: 4px; font-size: 12px; font-weight: bold;
+            letter-spacing: 1px; z-index: 9999; opacity: 0; transition: opacity 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); pointer-events: none; text-transform: uppercase;
+        }
+        #toastNotificacion.mostrar { opacity: 1; }
     </style>
     
     <script>
@@ -46,6 +55,8 @@
     </script>
 </head>
 <body>
+    <div id="toastNotificacion">Mensaje del sistema</div>
+
     <header>
         <div class="logo-texto">VESTIGIO - ADMIN</div>
         <nav><a href="index.html">Volver al Catálogo</a></nav>
@@ -57,12 +68,12 @@
             
             <div class="form-grupo">
                 <label>Nombre del Accesorio</label>
-                <input type="text" id="nombreProducto" placeholder="Ej: Reloj Casio Vintage o Cadena Cubana">
+                <input type="text" id="nombreProducto" placeholder="Ej: Reloj Casio o Cadena Cubana">
             </div>
 
             <div class="form-grupo">
-                <label>Descripción Comercial (Se verá en la ventana de detalles)</label>
-                <textarea id="descripcionProducto" rows="3" placeholder="Ej: Reloj clásico en acero inoxidable resistente al agua, diseño minimalista ideal para ocasiones formales y casuales."></textarea>
+                <label>Descripción Comercial</label>
+                <textarea id="descripcionProducto" rows="3" placeholder="Ej: Reloj clásico en acero inoxidable resistente al agua..."></textarea>
             </div>
 
             <div class="form-fila">
@@ -138,6 +149,13 @@
         const db = getFirestore(app);
         const imgbbApiKey = "69d3248964e2cdc2d6c16587c88b4866";
         const formatoCO = new Intl.NumberFormat('es-CO');
+
+        function mostrarToast(mensaje) {
+            const toast = document.getElementById("toastNotificacion");
+            toast.innerText = mensaje;
+            toast.classList.add("mostrar");
+            setTimeout(() => toast.classList.remove("mostrar"), 3500);
+        }
 
         const selectCat = document.getElementById("categoriaProducto");
         const selectSub = document.getElementById("subCategoriaProducto");
@@ -224,6 +242,7 @@
                         const idProd = e.target.getAttribute("data-id");
                         const stockActual = parseInt(e.target.getAttribute("data-actual"));
                         await updateDoc(doc(db, "productos", idProd), { cantidad: stockActual + 1 });
+                        mostrarToast("Stock actualizado (+1)");
                         cargarInventario();
                     });
                 });
@@ -234,6 +253,7 @@
                         const stockActual = parseInt(e.target.getAttribute("data-actual"));
                         if (stockActual > 0) {
                             await updateDoc(doc(db, "productos", idProd), { cantidad: stockActual - 1 });
+                            mostrarToast("Stock actualizado (-1)");
                             cargarInventario();
                         }
                     });
@@ -244,6 +264,7 @@
                         const idProd = e.target.getAttribute("data-id");
                         if(confirm("¿Seguro que quieres eliminar este producto del sistema?")) {
                             await deleteDoc(doc(db, "productos", idProd));
+                            mostrarToast("Producto eliminado del sistema");
                             cargarInventario();
                         }
                     });
@@ -270,7 +291,7 @@
             const archivo = inputArchivo.files[0];
 
             if(!nombre || !precio || !costo || !cantidad || !archivo) {
-                alert("Por favor llena los datos obligatorios y sube una foto.");
+                mostrarToast("Llena todos los campos obligatorios y sube una foto");
                 return;
             }
 
@@ -288,7 +309,7 @@
                 if (!datosImgbb.success) throw new Error("No se pudo subir la imagen.");
                 const urlDescarga = datosImgbb.data.url;
 
-                btn.innerText = "Guardando información en Firebase... ⏳";
+                btn.innerText = "Guardando en Firebase... ⏳";
 
                 await addDoc(collection(db, "productos"), {
                     nombre: nombre,
@@ -302,7 +323,7 @@
                     imagen: urlDescarga
                 });
                 
-                alert("¡Joya registrada con éxito!");
+                mostrarToast("¡Joya registrada con éxito!");
                 
                 document.getElementById("nombreProducto").value = "";
                 document.getElementById("descripcionProducto").value = "";
@@ -318,7 +339,7 @@
 
             } catch (error) {
                 console.error("Error: ", error);
-                alert("Hubo un error al guardar.");
+                mostrarToast("Hubo un error al guardar.");
                 btn.innerText = "Registrar Producto en el Sistema";
                 btn.disabled = false;
             }
