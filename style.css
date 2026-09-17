@@ -3,9 +3,25 @@
 body { 
     background-color: #050505; color: #e0e0e0; 
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6;
+    position: relative; overflow-x: hidden;
 }
 
-/* Barra de Anuncios Superior */
+/* MARCA DE AGUA DIFUMINADA DE FONDO (LA 'V' DE VESTIGIO) */
+.marca-agua-fondo {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Cinzel', serif;
+    font-size: 35vw;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.015); /* Súper sutil y elegante */
+    z-index: -1;
+    pointer-events: none;
+    user-select: none;
+    line-height: 1;
+}
+
 .barra-anuncio {
     background-color: #111; color: #aaa; text-align: center;
     padding: 8px 10px; font-size: 11px; text-transform: uppercase;
@@ -121,11 +137,17 @@ nav a:hover { color: #ffffff; }
 .oculto { display: none !important; }
 
 footer {
-    text-align: center; padding: 50px 20px; border-top: 1px solid #1a1a1a;
+    text-align: center; padding: 50px 20px 30px 20px; border-top: 1px solid #1a1a1a;
     background: #050505; color: #666; font-size: 11px; letter-spacing: 1.5px;
 }
 footer a { color: #aaa; text-decoration: none; transition: color 0.3s; }
 footer a:hover { color: #fff; }
+
+.enlace-admin-discreto {
+    margin-top: 15px; font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+}
+.enlace-admin-discreto a { color: #333; text-decoration: none; transition: color 0.3s; }
+.enlace-admin-discreto a:hover { color: #777; }
 
 .btn-flotante-wa {
     position: fixed; bottom: 25px; right: 25px; width: 55px; height: 55px;
@@ -140,4 +162,5 @@ footer a:hover { color: #fff; }
     header { padding: 15px 20px; flex-direction: column; gap: 12px; }
     .contenedor-productos { padding: 0 20px 40px 20px; grid-template-columns: 1fr; }
     .hero-banner h1 { font-size: 26px; }
+    .marca-agua-fondo { font-size: 70vw; }
 }
