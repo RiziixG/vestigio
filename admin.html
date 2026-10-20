@@ -74,7 +74,7 @@
 
             <hr class="separador">
 
-            <h2 style="margin-bottom: 25px; font-weight: 300;">Registrar Nueva Joya</h2>
+            <h2 style="margin-bottom: 25px; font-weight: 300;">Registrar Nueva Joya (Múltiples Fotos)</h2>
             
             <div class="form-grupo">
                 <label>Nombre del Accesorio</label>
@@ -137,8 +137,9 @@
             </div>
 
             <div class="form-grupo">
-                <label>Subir Foto del Producto</label>
-                <input type="file" id="imagenProducto" accept="image/*">
+                <label>Fotos del Producto (Selecciona 1 o varias a la vez)</label>
+                <input type="file" id="imagenesProducto" accept="image/*" multiple>
+                <span style="font-size: 10px; color: #666; display: block; margin-top: 5px;">Mantén presionada la tecla Ctrl (o Shift) al seleccionar las fotos para subir varias.</span>
             </div>
 
             <button class="btn-guardar" id="btnGuardar">Registrar Producto en el Sistema</button>
@@ -249,6 +250,7 @@
                     
                     const letreroAgotado = (stock === 0) ? `<span class="alerta-roja">AGOTADO</span>` : "";
                     const etiquetaDrop = prod.esDrop ? `<span style="color:#d4af37; margin-left: 10px; font-size:11px;">[DROP]</span>` : "";
+                    const numFotos = prod.imagenes ? prod.imagenes.length : 1;
 
                     capitalInvertido += (costo * stock);
                     gananciaProyectada += (utilidadNeta * stock);
@@ -258,7 +260,7 @@
                     <div class="item-inventario">
                         <div class="item-header">
                             <strong>${prod.nombre} ${etiquetaDrop} ${letreroAgotado}</strong>
-                            <span>${prod.categoria.toUpperCase()}</span>
+                            <span>${prod.categoria.toUpperCase()} (${numFotos} fotos)</span>
                         </div>
                         <div class="item-finanzas">
                             <span>Costo: $${formatoCO.format(costo)}</span>
@@ -324,48 +326,53 @@
         document.getElementById("btnGuardar").addEventListener("click", async () => {
             const nombre = document.getElementById("nombreProducto").value;
             const descripcion = document.getElementById("descripcionProducto").value;
-            const precio = document.getElementById("precioProducto").value;
+            const precio = document.getElementById("precioProducto5") || document.getElementById("precioProducto").value;
+            const precioVal = document.getElementById("precioProducto").value;
             const precioAnterior = document.getElementById("precioAnteriorProducto").value;
             const costo = document.getElementById("costoProducto").value;
             const cantidad = document.getElementById("cantidadProducto").value;
             const categoria = document.getElementById("categoriaProducto").value;
             const subcategoria = document.getElementById("subCategoriaProducto").value;
             const esDrop = document.getElementById("checkEsDrop").checked;
-            const inputArchivo = document.getElementById("imagenProducto");
-            const archivo = inputArchivo.files[0];
+            const inputArchivos = document.getElementById("imagenesProducto");
+            const archivos = inputArchivos.files;
 
-            if(!nombre || !precio || !costo || !cantidad || !archivo) {
-                mostrarToast("Llena todos los campos obligatorios y sube una foto");
+            if(!nombre || !precioVal || !costo || !cantidad || archivos.length === 0) {
+                mostrarToast("Llena todos los campos obligatorios y selecciona al menos una foto");
                 return;
             }
 
             const btn = document.getElementById("btnGuardar");
-            btn.innerText = "Subiendo foto a la nube... ⏳";
             btn.disabled = true;
 
             try {
-                const formData = new FormData();
-                formData.append("image", archivo);
+                let urlsImagenes = [];
 
-                const respuestaImgbb = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, { method: 'POST', body: formData });
-                const datosImgbb = await respuestaImgbb.json();
+                for (let i = 0; i < archivos.length; i++) {
+                    btn.innerText = `Subiendo foto ${i + 1} de ${archivos.length}... ⏳`;
+                    const formData = new FormData();
+                    formData.append("image", archivos[i]);
 
-                if (!datosImgbb.success) throw new Error("No se pudo subir la imagen.");
-                const urlDescarga = datosImgbb.data.url;
+                    const respuestaImgbb = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, { method: 'POST', body: formData });
+                    const datosImgbb = await respuestaImgbb.json();
+
+                    if (!datosImgbb.success) throw new Error(`No se pudo subir la imagen ${i + 1}.`);
+                    urlsImagenes.push(datosImgbb.data.url);
+                }
 
                 btn.innerText = "Guardando en Firebase... ⏳";
 
                 await addDoc(collection(db, "productos"), {
                     nombre: nombre,
                     descripcion: descripcion || "Pieza exclusiva seleccionada bajo los más altos estándares de diseño en Vestigio.",
-                    precio: Number(precio),
+                    precio: Number(precioVal),
                     precioAnterior: precioAnterior ? Number(precioAnterior) : 0,
                     costo: Number(costo),
                     cantidad: Number(cantidad),
                     categoria: categoria,
                     subcategoria: subcategoria,
                     esDrop: esDrop,
-                    imagen: urlDescarga
+                    imagenes: urlsImagenes // Guardamos la lista de fotos
                 });
                 
                 mostrarToast("¡Joya registrada con éxito!");
@@ -377,7 +384,7 @@
                 document.getElementById("costoProducto").value = "";
                 document.getElementById("cantidadProducto").value = "1";
                 document.getElementById("checkEsDrop").checked = false;
-                inputArchivo.value = "";
+                inputArchivos.value = "";
                 btn.innerText = "Registrar Producto en el Sistema";
                 btn.disabled = false;
 
@@ -385,7 +392,7 @@
 
             } catch (error) {
                 console.error("Error: ", error);
-                mostrarToast("Hubo un error al guardar.");
+                mostrarToast("Hubo un error al subir las fotos.");
                 btn.innerText = "Registrar Producto en el Sistema";
                 btn.disabled = false;
             }
