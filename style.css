@@ -6,7 +6,6 @@ body {
     position: relative; overflow-x: hidden;
 }
 
-/* MARCA DE AGUA DIFUMINADA DE FONDO (LA 'V' DE VESTIGIO) */
 .marca-agua-fondo {
     position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
     font-family: 'Cinzel', serif; font-size: 35vw; font-weight: 700;
@@ -49,7 +48,6 @@ nav a:hover { color: #ffffff; }
     color: #777; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
 }
 
-/* BUSCADOR Y ORDENAMIENTO */
 .controles-superiores {
     display: flex; justify-content: center; align-items: center; gap: 15px;
     margin-bottom: 30px; padding: 0 20px; flex-wrap: wrap;
@@ -141,6 +139,30 @@ nav a:hover { color: #ffffff; }
 
 .oculto { display: none !important; }
 
+/* ESTILOS PARA LA GALERÍA MULTIFOTO EN EL MODAL */
+.galeria-contenedor { position: relative; width: 100%; height: 100%; min-height: 400px; background: #0c0c0c; display: flex; align-items: center; justify-content: center; }
+.galeria-imagen { width: 100%; height: 100%; object-fit: cover; min-height: 400px; }
+.btn-galeria {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.6); color: #fff; border: 1px solid #444;
+    width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+    font-size: 18px; display: flex; align-items: center; justify-content: center;
+    transition: background 0.3s; z-index: 5;
+}
+.btn-galeria:hover { background: rgba(255, 255, 255, 0.2); }
+.btn-galeria-prev { left: 15px; }
+.btn-galeria-next { right: 15px; }
+
+.indicadores-fotos {
+    position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; z-index: 5;
+}
+.punto-indicador {
+    width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4);
+    cursor: pointer; transition: background 0.3s;
+}
+.punto-indicador.activo { background: #fff; }
+
 footer {
     text-align: center; padding: 50px 20px 30px 20px; border-top: 1px solid #1a1a1a;
     background: #050505; color: #666; font-size: 11px; letter-spacing: 1.5px;
@@ -166,4 +188,6 @@ footer a:hover { color: #fff; }
     .contenedor-productos { padding: 0 20px 40px 20px; grid-template-columns: 1fr; }
     .hero-banner h1 { font-size: 26px; }
     .marca-agua-fondo { font-size: 70vw; }
+    .galeria-contenedor { min-height: 280px; }
+    .galeria-imagen { min-height: 280px; }
 }
