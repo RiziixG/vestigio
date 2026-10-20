@@ -75,7 +75,8 @@
     </div>
 
     <header>
-        <a href="#" class="logo-texto">VESTIGIO</a>
+        <!-- Doble clic rápido en el logo para ir al admin -->
+        <a href="#" class="logo-texto" id="logoAdminSecreto" title="Vestigio">VESTIGIO</a>
         <nav>
             <a id="btnNosotros" href="#">Nosotros</a>
         </nav>
@@ -145,9 +146,7 @@
     <footer>
         <p>Vestigio © 2026. Todos los derechos reservados.</p>
         <p style="margin-top: 8px;"><a href="https://www.instagram.com/vestigi.o/" target="_blank">Síguenos en Instagram (@vestigi.o)</a></p>
-        <div class="enlace-admin-discreto">
-            <a href="admin.html">Panel Admin</a>
-        </div>
+        <!-- Eliminamos por completo el enlace visible del admin -->
     </footer>
 
     <a href="https://wa.me/573053030991?text=Hola,%20quisiera%20más%20información%20sobre%20los%20accesorios%20de%20Vestigio." target="_blank" class="btn-flotante-wa">
@@ -180,6 +179,7 @@
 
         document.addEventListener("DOMContentLoaded", async () => {
             configurarModalNosotros();
+            configurarAccesoSecretoAdmin();
             await verificarYRenderizarDrop();
             renderizarSubFiltros("todos");
 
@@ -207,6 +207,26 @@
                 ocultarPantallaCarga();
             }
         });
+
+        // Configuración de los métodos secretos para entrar al Admin
+        function configurarAccesoSecretoAdmin() {
+            // 1. Atajo de teclado: Ctrl + Shift + A
+            document.addEventListener("keydown", (e) => {
+                if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "a") {
+                    e.preventDefault();
+                    window.location.href = "admin.html";
+                }
+            });
+
+            // 2. Doble clic en el logotipo de la página
+            const logo = document.getElementById("logoAdminSecreto");
+            if (logo) {
+                logo.addEventListener("dblclick", (e) => {
+                    e.preventDefault();
+                    window.location.href = "admin.html";
+                });
+            }
+        }
 
         function renderizarProductos() {
             const contenedor = document.getElementById("contenedorProductos");
