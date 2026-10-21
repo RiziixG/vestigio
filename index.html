@@ -82,14 +82,21 @@
         </nav>
     </header>
 
-    <section class="hero-banner">
-        <h1>Colección Exclusiva</h1>
-        <p>Plata 925 • Acero Inoxidable • Oro</p>
+    <!-- SECCIÓN DE INTRO / PORTADA -->
+    <section class="intro-portada">
+        <h1>VESTIGIO</h1>
+        <p>Curaduría exclusiva de joyería fina y relojería atemporal. Diseños concebidos en metales nobles para perdurar y elevar tu identidad.</p>
+        <button class="btn-explorar" id="btnExplorarColeccion">Explorar Colección</button>
     </section>
 
-    <main>
+    <main id="seccionCatalogo" style="display: none;">
+        <div class="hero-banner">
+            <h2>Catálogo Exclusivo</h2>
+            <p>Plata 925 • Acero Inoxidable • Oro</p>
+        </div>
+
         <div class="controles-superiores">
-            <input type="text" id="buscadorProductos" placeholder="Buscar accesorio (Ej. Cadena Cubana)...">
+            <input type="text" id="buscadorProductos" placeholder="Buscar accesorio (Ej. Reloj, Cadena)...">
             <select id="selectOrdenar">
                 <option value="recientes">Ordenar por: Recientes</option>
                 <option value="menor-mayor">Precio: Menor a Mayor</option>
@@ -211,7 +218,13 @@
             configurarModalFaq();
             configurarAccesoSecretoAdmin();
             await verificarYRenderizarDrop();
-            renderizarSubFiltros("todos");
+
+            // Botón de introducción para abrir el catálogo
+            document.getElementById("btnExplorarColeccion").addEventListener("click", () => {
+                const catalogo = document.getElementById("seccionCatalogo");
+                catalogo.style.display = "block";
+                catalogo.scrollIntoView({ behavior: 'smooth' });
+            });
 
             try {
                 const querySnapshot = await getDocs(collection(db, "productos"));
@@ -229,6 +242,7 @@
                     listaProductosGlobal.push({ id: doc.id, ...data, imagenes: arrayImgs });
                 });
 
+                renderizarSubFiltros("todos");
                 renderizarProductos();
                 configurarFiltrosGlobales();
                 ocultarPantallaCarga();
@@ -506,7 +520,6 @@
             document.body.classList.add("modal-abierto");
         }
 
-        // AÑADIDO "CONJUNTOS" A LAS SUBCATEGORÍAS
         const subFiltrosJoyas = [
             { id: "todos", text: "Todo" }, { id: "cadenas", text: "Cadenas" },
             { id: "pulseras", text: "Pulseras" }, { id: "aretes", text: "Aretes" },
@@ -525,11 +538,26 @@
                 subcategoriaActiva = "todos";
                 return;
             }
+
+            // Filtrar productos base según la categoría principal seleccionada
+            let prodsCat = listaProductosGlobal;
+            if (categoria !== "todos") {
+                prodsCat = listaProductosGlobal.filter(p => p.categoria === categoria);
+            }
+
             const opciones = (categoria === "relojes") ? subFiltrosRelojes : subFiltrosJoyas;
             
-            contenedorSubFiltros.innerHTML = opciones.map(opt => 
-                `<button class="sub-filtro-btn ${opt.id === 'todos' ? 'activo' : ''}" data-sub="${opt.id}">${opt.text}</button>`
-            ).join('');
+            contenedorSubFiltros.innerHTML = opciones.map(opt => {
+                let cantidad = 0;
+                if (opt.id === "todos") {
+                    cantidad = prodsCat.length;
+                } else {
+                    cantidad = prodsCat.filter(p => p.subcategoria === opt.id).length;
+                }
+                const textoContador = cantidad > 0 ? ` (${cantidad})` : ` (0)`;
+                const esActivo = (opt.id === subcategoriaActiva) ? 'activo' : '';
+                return `<button class="sub-filtro-btn ${esActivo}" data-sub="${opt.id}">${opt.text}${textoContador}</button>`;
+            }).join('');
 
             document.querySelectorAll(".sub-filtro-btn").forEach(boton => {
                 boton.addEventListener("click", () => {
@@ -539,7 +567,6 @@
                     renderizarProductos();
                 });
             });
-            subcategoriaActiva = "todos";
         }
 
         function configurarFiltrosGlobales() {
@@ -563,6 +590,7 @@
                 document.querySelectorAll(".filtro-btn").forEach(b => b.classList.remove("activo"));
                 boton.classList.add("activo");
                 categoriaActiva = boton.getAttribute("data-cat");
+                subcategoriaActiva = "todos"; // Reiniciar subcategoría al cambiar de categoría principal
                 renderizarSubFiltros(categoriaActiva);
                 renderizarProductos();
             });
