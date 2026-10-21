@@ -38,26 +38,28 @@ nav a {
 }
 nav a:hover { color: #ffffff; }
 
-/* SECCIÓN DE INTRO / PORTADA */
+/* NUEVA INTRO / PORTADA ESTÉTICA Y LIMPIA */
 .intro-portada {
-    text-align: center; padding: 90px 20px 60px 20px;
-    background: linear-gradient(to bottom, #0a0a0a, #050505);
-    border-bottom: 1px solid #1a1a1a; margin-bottom: 30px;
+    min-height: 75vh; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; text-align: center;
+    padding: 40px 20px; background: radial-gradient(circle at center, #0f0f0f 0%, #050505 100%);
+    border-bottom: 1px solid #1a1a1a;
 }
 .intro-portada h1 {
-    font-family: 'Cinzel', serif; font-size: 42px; color: #fff;
-    font-weight: 500; letter-spacing: 6px; margin-bottom: 15px;
+    font-family: 'Cinzel', serif; font-size: 48px; color: #fff;
+    font-weight: 500; letter-spacing: 8px; margin-bottom: 15px;
 }
 .intro-portada p {
-    color: #888; font-size: 13px; letter-spacing: 2.5px; text-transform: uppercase;
-    max-width: 600px; margin: 0 auto 30px auto; line-height: 1.8;
+    color: #888; font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+    max-width: 500px; margin: 0 auto 35px auto; line-height: 1.8;
 }
 .btn-explorar {
-    background: #fff; color: #000; border: none; padding: 14px 35px;
-    font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;
-    cursor: pointer; border-radius: 3px; transition: all 0.3s ease;
+    background: transparent; color: #fff; border: 1px solid #444; 
+    padding: 14px 40px; font-size: 11px; font-weight: bold; 
+    text-transform: uppercase; letter-spacing: 2.5px; cursor: pointer; 
+    border-radius: 2px; transition: all 0.4s ease;
 }
-.btn-explorar:hover { background: #25D366; color: #fff; }
+.btn-explorar:hover { background: #fff; color: #000; border-color: #fff; transform: translateY(-2px); }
 
 .hero-banner {
     text-align: center; padding: 50px 20px;
@@ -216,7 +218,7 @@ footer a:hover { color: #fff; }
 @media (max-width: 768px) {
     header { padding: 15px 20px; flex-direction: column; gap: 12px; }
     .contenedor-productos { padding: 0 20px 40px 20px; grid-template-columns: 1fr; }
-    .intro-portada h1 { font-size: 28px; }
+    .intro-portada h1 { font-size: 32px; }
     .marca-agua-fondo { font-size: 70vw; }
     .galeria-contenedor { min-height: 280px; }
     .galeria-imagen { min-height: 280px; }
