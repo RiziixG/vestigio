@@ -8,6 +8,42 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
+        /* ESTILOS DEL NUEVO LOGIN ESTÉTICO */
+        #modalLogin {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 99999; transition: opacity 0.4s ease;
+        }
+        .login-card {
+            background: #0a0a0a; border: 1px solid #222; width: 90%; max-width: 400px;
+            padding: 40px 30px; border-radius: 6px; text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9);
+        }
+        .login-card h2 {
+            font-family: 'Cinzel', serif; font-size: 22px; color: #fff;
+            letter-spacing: 4px; margin-bottom: 10px; font-weight: 500;
+        }
+        .login-card p {
+            color: #777; font-size: 11px; text-transform: uppercase;
+            letter-spacing: 2px; margin-bottom: 25px;
+        }
+        .login-card input {
+            width: 100%; padding: 12px 15px; background: #111; border: 1px solid #333;
+            color: white; border-radius: 4px; font-family: inherit; text-align: center;
+            letter-spacing: 3px; font-size: 15px; margin-bottom: 20px; outline: none;
+            transition: border-color 0.3s;
+        }
+        .login-card input:focus { border-color: #666; }
+        .login-card button {
+            background: #fff; color: #000; border: none; padding: 12px; width: 100%;
+            font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase;
+            letter-spacing: 2px; font-size: 11px; transition: all 0.3s ease;
+        }
+        .login-card button:hover { background: #25D366; color: white; }
+        .login-error { color: #ff4444; font-size: 11px; margin-top: 12px; letter-spacing: 1px; display: none; }
+
+        /* CONTENIDO DEL PANEL */
         .panel-admin { max-width: 800px; margin: 40px auto; background: #0a0a0a; padding: 30px; border: 1px solid #1a1a1a; border-radius: 8px; }
         .form-grupo { margin-bottom: 20px; }
         .form-fila { display: flex; gap: 15px; } 
@@ -62,16 +98,21 @@
         }
         #toastNotificacion.mostrar { opacity: 1; }
     </style>
-    
-    <script>
-        const clave = prompt("Ingresa la contraseña de administrador:");
-        if (clave !== "Vestigio2026") {
-            document.documentElement.innerHTML = "<body style='background:#050505;'><h1 style='color:red; text-align:center; font-family:sans-serif; margin-top:100px;'>ACCESO DENEGADO</h1></body>";
-            window.stop();
-        }
-    </script>
 </head>
 <body>
+    <!-- VENTANA MODAL DE LOGIN ESTÉTICO -->
+    <div id="modalLogin">
+        <div class="login-card">
+            <h2>VESTIGIO</h2>
+            <p>Acceso Administrativo</p>
+            <form id="formLogin">
+                <input type="password" id="inputPassword" placeholder="••••••••••••" autofocus autocomplete="current-password">
+                <button type="submit">Ingresar</button>
+                <div class="login-error" id="loginError">Contraseña incorrecta</div>
+            </form>
+        </div>
+    </div>
+
     <div id="toastNotificacion">Mensaje del sistema</div>
 
     <header>
@@ -205,6 +246,25 @@
 
         let productosCache = {};
 
+        // LÓGICA DEL LOGIN ESTÉTICO
+        const formLogin = document.getElementById("formLogin");
+        const inputPassword = document.getElementById("inputPassword");
+        const loginError = document.getElementById("loginError");
+        const modalLogin = document.getElementById("modalLogin");
+
+        formLogin.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const claveIngresada = inputPassword.value;
+            if (claveIngresada === "Vestigio2026") {
+                modalLogin.style.opacity = "0";
+                setTimeout(() => modalLogin.style.display = "none", 400);
+            } else {
+                loginError.style.display = "block";
+                inputPassword.value = "";
+                inputPassword.focus();
+            }
+        });
+
         function mostrarToast(mensaje) {
             const toast = document.getElementById("toastNotificacion");
             toast.innerText = mensaje;
@@ -329,7 +389,6 @@
                 document.getElementById("resumenCapital").innerText = `$ ${formatoCO.format(capitalInvertido)}`;
                 document.getElementById("resumenGanancia").innerText = `$ ${formatoCO.format(gananciaProyectada)}`;
 
-                // Eventos de stock y botones
                 document.querySelectorAll(".btn-sumar").forEach(btn => {
                     btn.addEventListener("click", async (e) => {
                         const idProd = e.target.getAttribute("data-id");
@@ -405,7 +464,6 @@
             document.getElementById("cantidadProducto").value = prod.cantidad || 1;
             
             document.getElementById("categoriaProducto").value = prod.categoria || "plata";
-            // Actualizar subcategorías
             if(prod.categoria === "relojes") {
                 selectSub.innerHTML = opcionesRelojes;
             } else {
@@ -476,10 +534,8 @@
                 let urlsImagenes = [];
 
                 if (idEdicion && !file1 && !file2 && !file3) {
-                    // Si estamos editando y no seleccionó nuevas fotos, mantenemos las anteriores
                     urlsImagenes = productosCache[idEdicion].imagenes;
                 } else {
-                    // Subir nuevas fotos si se seleccionaron
                     let archivosASubir = [file1, file2, file3].filter(f => f !== undefined);
                     
                     if(archivosASubir.length === 0 && idEdicion) {
@@ -515,11 +571,9 @@
                 };
 
                 if (idEdicion) {
-                    // Actualizar producto existente
                     await updateDoc(doc(db, "productos", idEdicion), datosProducto);
                     mostrarToast("¡Cambios guardados con éxito!");
                 } else {
-                    // Crear nuevo producto
                     await addDoc(collection(db, "productos"), datosProducto);
                     mostrarToast("¡Joya registrada con éxito!");
                 }
