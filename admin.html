@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        .panel-admin { max-width: 650px; margin: 40px auto; background: #0a0a0a; padding: 30px; border: 1px solid #1a1a1a; border-radius: 8px; }
+        .panel-admin { max-width: 800px; margin: 40px auto; background: #0a0a0a; padding: 30px; border: 1px solid #1a1a1a; border-radius: 8px; }
         .form-grupo { margin-bottom: 20px; }
         .form-fila { display: flex; gap: 15px; } 
         .form-fila .form-grupo { flex: 1; }
@@ -22,21 +22,36 @@
         input[type="file"] { cursor: pointer; padding: 10px; color: #aaa; }
         
         .separador { border-color: #1a1a1a; margin: 40px 0; border-style: solid; border-width: 1px 0 0 0; }
-        .item-inventario { background: #111; padding: 15px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #333; position: relative; }
-        .item-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 10px; }
-        .item-header strong { color: #fff; font-size: 15px; }
-        .item-finanzas { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-bottom: 10px; }
-        .dato-utilidad { color: #25d366; font-weight: bold; }
-        .item-controles { display: flex; justify-content: space-between; align-items: center; }
-        .control-stock { display: flex; align-items: center; gap: 10px; background: #000; padding: 5px 10px; border-radius: 4px; border: 1px solid #333; }
-        .btn-stock { background: #333; color: white; border: none; width: 25px; height: 25px; border-radius: 3px; cursor: pointer; font-weight: bold; }
-        .btn-stock:hover { background: #555; }
-        .cantidad-actual { color: #fff; font-weight: bold; min-width: 20px; text-align: center; }
-        .btn-eliminar { background: transparent; color: #ff4444; border: 1px solid #ff4444; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; text-transform: uppercase; }
-        .btn-eliminar:hover { background: #ff4444; color: white; }
         
-        .resumen-global { background: #1a1a1a; padding: 15px; border-radius: 4px; margin-bottom: 20px; text-align: center; color: #ccc; font-size: 14px; border: 1px dashed #333; }
-        .alerta-roja { color: #ff3333; font-size: 10px; font-weight: bold; border: 1px solid #ff3333; padding: 2px 5px; border-radius: 3px; margin-left: 10px; }
+        /* ESTILOS PARA LA SECCIÓN DE INVENTARIO Y FINANZAS */
+        .tarjeta-inventario { background: #111; padding: 20px; margin-bottom: 20px; border-radius: 6px; border: 1px solid #222; }
+        .inventario-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 12px; margin-bottom: 15px; }
+        .inventario-header strong { color: #fff; font-size: 16px; font-family: 'Cinzel', serif; }
+        
+        .inventario-detalles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; font-size: 13px; color: #aaa; margin-bottom: 15px; }
+        .inventario-detalles div { background: #080808; padding: 10px; border-radius: 4px; border: 1px solid #1a1a1a; }
+        .inventario-detalles span { display: block; font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 4px; }
+        .texto-ganancia { color: #25d366; font-weight: bold; }
+
+        .inventario-acciones { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .control-stock { display: flex; align-items: center; gap: 10px; background: #000; padding: 6px 12px; border-radius: 4px; border: 1px solid #333; }
+        .btn-stock { background: #222; color: white; border: none; width: 28px; height: 28px; border-radius: 3px; cursor: pointer; font-weight: bold; }
+        .btn-stock:hover { background: #444; }
+        .cantidad-actual { color: #fff; font-weight: bold; min-width: 25px; text-align: center; }
+        
+        .btn-accion-admin { background: transparent; border: 1px solid #444; color: #ccc; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 11px; text-transform: uppercase; transition: 0.3s; }
+        .btn-accion-admin:hover { background: #222; color: #fff; border-color: #666; }
+        .btn-eliminar { border-color: #ff4444; color: #ff4444; }
+        .btn-eliminar:hover { background: #ff4444; color: white; }
+
+        .resumen-global-caja { background: linear-gradient(135deg, #141414, #0d0d0d); padding: 20px; border-radius: 6px; margin-bottom: 25px; border: 1px solid #222; text-align: center; }
+        .resumen-global-caja h3 { font-family: 'Cinzel', serif; font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+        .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 15px; }
+        .resumen-item { background: #080808; padding: 15px; border-radius: 4px; border: 1px solid #1a1a1a; }
+        .resumen-item span { display: block; font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 5px; }
+        .resumen-item strong { font-size: 16px; color: #fff; }
+
+        .alerta-roja { color: #ff3333; font-size: 10px; font-weight: bold; border: 1px solid #ff3333; padding: 2px 6px; border-radius: 3px; margin-left: 10px; }
 
         #toastNotificacion {
             position: fixed; top: 20px; right: 20px; background: #fff; color: #000;
@@ -74,7 +89,7 @@
 
             <hr class="separador">
 
-            <h2 style="margin-bottom: 25px; font-weight: 300;">Registrar Nueva Joya (Fotos Individuales)</h2>
+            <h2 style="margin-bottom: 25px; font-weight: 300;">Registrar Nueva Joya</h2>
             
             <div class="form-grupo">
                 <label>Nombre del Accesorio</label>
@@ -136,28 +151,35 @@
                 </div>
             </div>
 
-            <!-- CAMPOS SEPARADOS PARA CADA FOTO -->
             <div class="form-grupo">
                 <label>Foto 1 (Principal - Obligatoria)</label>
                 <input type="file" id="foto1" accept="image/*">
             </div>
-
             <div class="form-grupo">
-                <label>Foto 2 (Opcional - Detalle o Modelo)</label>
+                <label>Foto 2 (Opcional)</label>
                 <input type="file" id="foto2" accept="image/*">
             </div>
-
             <div class="form-grupo">
-                <label>Foto 3 (Opcional - Vista Trasera / Empaque)</label>
+                <label>Foto 3 (Opcional)</label>
                 <input type="file" id="foto3" accept="image/*">
             </div>
 
             <button class="btn-guardar" id="btnGuardar">Registrar Producto en el Sistema</button>
 
             <hr class="separador">
-            <h2 style="margin-bottom: 15px; font-weight: 300;">Control de Inventario</h2>
-            <div class="resumen-global" id="resumenGlobal">Calculando capital...</div>
-            <div id="tablaInventario"><p style="color: #888; text-align: center;">Cargando productos...</p></div>
+            
+            <!-- SECCIÓN DEDICADA DE INVENTARIO Y FINANZAS -->
+            <h2 style="margin-bottom: 15px; font-weight: 300;">Auditoría de Inventario y Finanzas</h2>
+            <div class="resumen-global-caja" id="resumenGlobalCaja">
+                <h3>Resumen Financiero Global</h3>
+                <div class="resumen-grid" id="resumenGrid">
+                    <div class="resumen-item"><span>Piezas en Stock</span><strong id="resumenPiezas">0</strong></div>
+                    <div class="resumen-item"><span>Capital Invertido</span><strong id="resumenCapital">$ 0</strong></div>
+                    <div class="resumen-item"><span>Ganancia Potencial</span><strong id="resumenGanancia" style="color:#25d366;">$ 0</strong></div>
+                </div>
+            </div>
+
+            <div id="tablaInventario"><p style="color: #888; text-align: center;">Cargando inventario...</p></div>
         </div>
     </main>
 
@@ -236,13 +258,14 @@
 
         async function cargarInventario() {
             const contenedor = document.getElementById("tablaInventario");
-            const resumen = document.getElementById("resumenGlobal");
             
             try {
                 const querySnapshot = await getDocs(collection(db, "productos"));
                 if(querySnapshot.empty){
                     contenedor.innerHTML = "<p style='color:#888; text-align: center;'>No hay productos registrados.</p>";
-                    resumen.innerHTML = "Tu inventario está vacío.";
+                    document.getElementById("resumenPiezas").innerText = "0";
+                    document.getElementById("resumenCapital").innerText = "$ 0";
+                    document.getElementById("resumenGanancia").innerText = "$ 0";
                     return;
                 }
                 
@@ -259,39 +282,45 @@
                     const utilidadNeta = precio - costo;
                     
                     const letreroAgotado = (stock === 0) ? `<span class="alerta-roja">AGOTADO</span>` : "";
-                    const etiquetaDrop = prod.esDrop ? `<span style="color:#d4af37; margin-left: 10px; font-size:11px;">[DROP]</span>` : "";
-                    const numFotos = prod.imagenes ? prod.imagenes.length : 1;
+                    const etiquetaDrop = prod.esDrop ? `<span style="color:#d4af37; font-size:11px;">[DROP]</span>` : "";
 
                     capitalInvertido += (costo * stock);
                     gananciaProyectada += (utilidadNeta * stock);
                     totalPiezas += stock;
 
                     html += `
-                    <div class="item-inventario">
-                        <div class="item-header">
+                    <div class="tarjeta-inventario">
+                        <div class="inventario-header">
                             <strong>${prod.nombre} ${etiquetaDrop} ${letreroAgotado}</strong>
-                            <span>${prod.categoria.toUpperCase()} (${numFotos} fotos)</span>
+                            <span style="font-size: 11px; color: #777; text-transform: uppercase;">${prod.categoria} / ${prod.subcategoria}</span>
                         </div>
-                        <div class="item-finanzas">
-                            <span>Costo: $${formatoCO.format(costo)}</span>
-                            <span>Venta: $${formatoCO.format(precio)}</span>
-                            <span class="dato-utilidad">Utilidad: $${formatoCO.format(utilidadNeta)}/ud</span>
+                        <div class="inventario-detalles">
+                            <div><span>Costo Unitario</span>$ ${formatoCO.format(costo)}</div>
+                            <div><span>Precio Venta</span>$ ${formatoCO.format(precio)}</div>
+                            <div><span>Utilidad por Unidad</span><strong class="texto-ganancia">$ ${formatoCO.format(utilidadNeta)}</strong></div>
+                            <div><span>Valor Total Stock</span>$ ${formatoCO.format(precio * stock)}</div>
                         </div>
-                        <div class="item-controles">
+                        <div class="inventario-acciones">
                             <div class="control-stock">
                                 <span style="font-size: 10px; color:#888; text-transform:uppercase;">Stock</span>
                                 <button class="btn-stock btn-restar" data-id="${documento.id}" data-actual="${stock}">-</button>
                                 <span class="cantidad-actual" style="${stock === 0 ? 'color:#ff3333;' : ''}">${stock}</span>
                                 <button class="btn-stock btn-sumar" data-id="${documento.id}" data-actual="${stock}">+</button>
                             </div>
-                            <button class="btn-eliminar" data-id="${documento.id}">Eliminar</button>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-accion-admin btn-whatsapp-copiar" data-nombre="${prod.nombre}">Copiar Link WA</button>
+                                <button class="btn-accion-admin btn-eliminar" data-id="${documento.id}">Eliminar</button>
+                            </div>
                         </div>
                     </div>`;
                 });
                 
                 contenedor.innerHTML = html;
-                resumen.innerHTML = `<strong>${totalPiezas} piezas en stock</strong> | Capital Invertido: $${formatoCO.format(capitalInvertido)} | Utilidad Potencial: <span style="color:#25d366;">$${formatoCO.format(gananciaProyectada)}</span>`;
+                document.getElementById("resumenPiezas").innerText = totalPiezas;
+                document.getElementById("resumenCapital").innerText = `$ ${formatoCO.format(capitalInvertido)}`;
+                document.getElementById("resumenGanancia").innerText = `$ ${formatoCO.format(gananciaProyectada)}`;
 
+                // Eventos de stock y botones
                 document.querySelectorAll(".btn-sumar").forEach(btn => {
                     btn.addEventListener("click", async (e) => {
                         const idProd = e.target.getAttribute("data-id");
@@ -311,6 +340,16 @@
                             mostrarToast("Stock actualizado (-1)");
                             cargarInventario();
                         }
+                    });
+                });
+
+                document.querySelectorAll(".btn-whatsapp-copiar").forEach(btn => {
+                    btn.addEventListener("click", (e) => {
+                        const nombreProd = e.target.getAttribute("data-nombre");
+                        const texto = `Hola, vengo de la página web y quiero pedir: ${nombreProd}`;
+                        const link = `https://wa.me/573053030991?text=${encodeURIComponent(texto)}`;
+                        navigator.clipboard.writeText(link);
+                        mostrarToast("¡Enlace de WhatsApp copiado!");
                     });
                 });
 
