@@ -40,6 +40,8 @@
         
         .btn-accion-admin { background: transparent; border: 1px solid #444; color: #ccc; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 11px; text-transform: uppercase; transition: 0.3s; }
         .btn-accion-admin:hover { background: #222; color: #fff; border-color: #666; }
+        .btn-editar { border-color: #d4af37; color: #d4af37; }
+        .btn-editar:hover { background: #d4af37; color: black; }
         .btn-eliminar { border-color: #ff4444; color: #ff4444; }
         .btn-eliminar:hover { background: #ff4444; color: white; }
 
@@ -88,7 +90,8 @@
 
             <hr class="separador">
 
-            <h2 style="margin-bottom: 25px; font-weight: 300;">Registrar Nueva Joya</h2>
+            <h2 id="tituloFormulario" style="margin-bottom: 25px; font-weight: 300;">Registrar Nueva Joya</h2>
+            <input type="hidden" id="editandoId" value="">
             
             <div class="form-grupo">
                 <label>Nombre del Accesorio</label>
@@ -151,7 +154,7 @@
             </div>
 
             <div class="form-grupo">
-                <label>Foto 1 (Principal - Obligatoria)</label>
+                <label id="labelFoto1">Foto 1 (Principal - Obligatoria)</label>
                 <input type="file" id="foto1" accept="image/*">
             </div>
             <div class="form-grupo">
@@ -164,6 +167,7 @@
             </div>
 
             <button class="btn-guardar" id="btnGuardar">Registrar Producto en el Sistema</button>
+            <button class="btn-secundario oculto" id="btnCancelarEdicion" style="background:#444; border-color:#666;">Cancelar Edición</button>
 
             <hr class="separador">
             
@@ -198,6 +202,8 @@
         const db = getFirestore(app);
         const imgbbApiKey = "69d3248964e2cdc2d6c16587c88b4866";
         const formatoCO = new Intl.NumberFormat('es-CO');
+
+        let productosCache = {};
 
         function mostrarToast(mensaje) {
             const toast = document.getElementById("toastNotificacion");
@@ -259,6 +265,8 @@
             
             try {
                 const querySnapshot = await getDocs(collection(db, "productos"));
+                productosCache = {};
+
                 if(querySnapshot.empty){
                     contenedor.innerHTML = "<p style='color:#888; text-align: center;'>No hay productos registrados.</p>";
                     document.getElementById("resumenPiezas").innerText = "0";
@@ -274,6 +282,8 @@
 
                 querySnapshot.forEach(documento => {
                     const prod = documento.data();
+                    productosCache[documento.id] = prod;
+
                     const costo = prod.costo || 0;
                     const stock = prod.cantidad || 0;
                     const precio = prod.precio || 0;
@@ -305,8 +315,9 @@
                                 <span class="cantidad-actual" style="${stock === 0 ? 'color:#ff3333;' : ''}">${stock}</span>
                                 <button class="btn-stock btn-sumar" data-id="${documento.id}" data-actual="${stock}">+</button>
                             </div>
-                            <div style="display: flex; gap: 8px;">
-                                <button class="btn-accion-admin btn-whatsapp-copiar" data-nombre="${prod.nombre}">Copiar Link WA</button>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button class="btn-accion-admin btn-editar" data-id="${documento.id}">Editar</button>
+                                <button class="btn-accion-admin btn-whatsapp-copiar" data-nombre="${prod.nombre}">Copiar Link</button>
                                 <button class="btn-accion-admin btn-eliminar" data-id="${documento.id}">Eliminar</button>
                             </div>
                         </div>
@@ -318,6 +329,7 @@
                 document.getElementById("resumenCapital").innerText = `$ ${formatoCO.format(capitalInvertido)}`;
                 document.getElementById("resumenGanancia").innerText = `$ ${formatoCO.format(gananciaProyectada)}`;
 
+                // Eventos de stock y botones
                 document.querySelectorAll(".btn-sumar").forEach(btn => {
                     btn.addEventListener("click", async (e) => {
                         const idProd = e.target.getAttribute("data-id");
@@ -337,6 +349,13 @@
                             mostrarToast("Stock actualizado (-1)");
                             cargarInventario();
                         }
+                    });
+                });
+
+                document.querySelectorAll(".btn-editar").forEach(btn => {
+                    btn.addEventListener("click", (e) => {
+                        const idProd = e.target.getAttribute("data-id");
+                        prepararEdicion(idProd);
                     });
                 });
 
@@ -369,7 +388,63 @@
 
         cargarInventario();
 
+        function prepararEdicion(id) {
+            const prod = productosCache[id];
+            if (!prod) return;
+
+            document.getElementById("editandoId").value = id;
+            document.getElementById("tituloFormulario").innerText = `Editando: ${prod.nombre}`;
+            document.getElementById("btnGuardar").innerText = "Guardar Cambios del Producto";
+            document.getElementById("btnCancelarEdicion").classList.remove("oculto");
+
+            document.getElementById("nombreProducto").value = prod.nombre || "";
+            document.getElementById("descripcionProducto").value = prod.descripcion || "";
+            document.getElementById("costoProducto").value = prod.costo || "";
+            document.getElementById("precioProducto").value = prod.precio || "";
+            document.getElementById("precioAnteriorProducto").value = prod.precioAnterior || "";
+            document.getElementById("cantidadProducto").value = prod.cantidad || 1;
+            
+            document.getElementById("categoriaProducto").value = prod.categoria || "plata";
+            // Actualizar subcategorías
+            if(prod.categoria === "relojes") {
+                selectSub.innerHTML = opcionesRelojes;
+            } else {
+                selectSub.innerHTML = opcionesJoyas;
+            }
+            document.getElementById("subCategoriaProducto").value = prod.subcategoria || "cadenas";
+            document.getElementById("checkEsDrop").checked = prod.esDrop || false;
+
+            document.getElementById("labelFoto1").innerText = "Foto 1 (Opcional - Si deseas reemplazar las fotos)";
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        document.getElementById("btnCancelarEdicion").addEventListener("click", () => {
+            limpiarFormulario();
+            mostrarToast("Edición cancelada");
+        });
+
+        function limpiarFormulario() {
+            document.getElementById("editandoId").value = "";
+            document.getElementById("tituloFormulario").innerText = "Registrar Nueva Joya";
+            document.getElementById("btnGuardar").innerText = "Registrar Producto en el Sistema";
+            document.getElementById("btnCancelarEdicion").classList.add("oculto");
+
+            document.getElementById("nombreProducto").value = "";
+            document.getElementById("descripcionProducto").value = "";
+            document.getElementById("precioProducto").value = "";
+            document.getElementById("precioAnteriorProducto").value = "";
+            document.getElementById("costoProducto").value = "";
+            document.getElementById("cantidadProducto").value = "1";
+            document.getElementById("checkEsDrop").checked = false;
+            document.getElementById("foto1").value = "";
+            document.getElementById("foto2").value = "";
+            document.getElementById("foto3").value = "";
+            document.getElementById("labelFoto1").innerText = "Foto 1 (Principal - Obligatoria)";
+        }
+
         document.getElementById("btnGuardar").addEventListener("click", async () => {
+            const idEdicion = document.getElementById("editandoId").value;
             const nombre = document.getElementById("nombreProducto").value;
             const descripcion = document.getElementById("descripcionProducto").value;
             const precioVal = document.getElementById("precioProducto").value;
@@ -384,8 +459,13 @@
             const file2 = document.getElementById("foto2").files[0];
             const file3 = document.getElementById("foto3").files[0];
 
-            if(!nombre || !precioVal || !costo || !cantidad || !file1) {
-                mostrarToast("Llena los campos obligatorios y selecciona al menos la Foto 1");
+            if(!nombre || !precioVal || !costo || !cantidad) {
+                mostrarToast("Llena los campos obligatorios principales");
+                return;
+            }
+
+            if(!idEdicion && !file1) {
+                mostrarToast("Selecciona al menos la Foto 1 para el nuevo producto");
                 return;
             }
 
@@ -394,23 +474,34 @@
 
             try {
                 let urlsImagenes = [];
-                let archivosASubir = [file1, file2, file3].filter(f => f !== undefined);
 
-                for (let i = 0; i < archivosASubir.length; i++) {
-                    btn.innerText = `Subiendo foto ${i + 1} de ${archivosASubir.length}... ⏳`;
-                    const formData = new FormData();
-                    formData.append("image", archivosASubir[i]);
+                if (idEdicion && !file1 && !file2 && !file3) {
+                    // Si estamos editando y no seleccionó nuevas fotos, mantenemos las anteriores
+                    urlsImagenes = productosCache[idEdicion].imagenes;
+                } else {
+                    // Subir nuevas fotos si se seleccionaron
+                    let archivosASubir = [file1, file2, file3].filter(f => f !== undefined);
+                    
+                    if(archivosASubir.length === 0 && idEdicion) {
+                        urlsImagenes = productosCache[idEdicion].imagenes;
+                    } else {
+                        for (let i = 0; i < archivosASubir.length; i++) {
+                            btn.innerText = `Subiendo foto ${i + 1} de ${archivosASubir.length}... ⏳`;
+                            const formData = new FormData();
+                            formData.append("image", archivosASubir[i]);
 
-                    const respuestaImgbb = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, { method: 'POST', body: formData });
-                    const datosImgbb = await respuestaImgbb.json();
+                            const respuestaImgbb = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, { method: 'POST', body: formData });
+                            const datosImgbb = await respuestaImgbb.json();
 
-                    if (!datosImgbb.success) throw new Error(`No se pudo subir la foto ${i + 1}.`);
-                    urlsImagenes.push(datosImgbb.data.url);
+                            if (!datosImgbb.success) throw new Error(`No se pudo subir la foto ${i + 1}.`);
+                            urlsImagenes.push(datosImgbb.data.url);
+                        }
+                    }
                 }
 
                 btn.innerText = "Guardando en Firebase... ⏳";
 
-                await addDoc(collection(db, "productos"), {
+                const datosProducto = {
                     nombre: nombre,
                     descripcion: descripcion || "Pieza exclusiva seleccionada bajo los más altos estándares de diseño en Vestigio.",
                     precio: Number(precioVal),
@@ -421,30 +512,25 @@
                     subcategoria: subcategoria,
                     esDrop: esDrop,
                     imagenes: urlsImagenes
-                });
-                
-                mostrarToast("¡Joya registrada con éxito!");
-                
-                document.getElementById("nombreProducto").value = "";
-                document.getElementById("descripcionProducto").value = "";
-                document.getElementById("precioProducto").value = "";
-                document.getElementById("precioAnteriorProducto").value = "";
-                document.getElementById("costoProducto").value = "";
-                document.getElementById("cantidadProducto").value = "1";
-                document.getElementById("checkEsDrop").checked = false;
-                document.getElementById("foto1").value = "";
-                document.getElementById("foto2").value = "";
-                document.getElementById("foto3").value = "";
-                
-                btn.innerText = "Registrar Producto en el Sistema";
-                btn.disabled = false;
+                };
 
+                if (idEdicion) {
+                    // Actualizar producto existente
+                    await updateDoc(doc(db, "productos", idEdicion), datosProducto);
+                    mostrarToast("¡Cambios guardados con éxito!");
+                } else {
+                    // Crear nuevo producto
+                    await addDoc(collection(db, "productos"), datosProducto);
+                    mostrarToast("¡Joya registrada con éxito!");
+                }
+                
+                limpiarFormulario();
                 cargarInventario();
 
             } catch (error) {
                 console.error("Error: ", error);
-                mostrarToast("Hubo un error al subir las fotos.");
-                btn.innerText = "Registrar Producto en el Sistema";
+                mostrarToast("Hubo un error al procesar la solicitud.");
+                btn.innerText = idEdicion ? "Guardar Cambios del Producto" : "Registrar Producto en el Sistema";
                 btn.disabled = false;
             }
         });
