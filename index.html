@@ -75,6 +75,7 @@
     <header>
         <a href="#" class="logo-texto" id="logoAdminSecreto">VESTIGIO</a>
         <nav>
+            <a id="btnFaq" href="#">FAQ / Envíos</a>
             <a id="btnNosotros" href="#">Nosotros</a>
         </nav>
     </header>
@@ -109,6 +110,7 @@
         </div>
     </main>
 
+    <!-- VENTANA MODAL DETALLE DE PRODUCTO -->
     <div class="modal-overlay" id="modalDetalle">
         <div class="modal-contenido">
             <button class="modal-cerrar" id="btnCerrarModal">&times;</button>
@@ -135,6 +137,7 @@
         </div>
     </div>
 
+    <!-- VENTANA MODAL NOSOTROS -->
     <div class="modal-overlay" id="modalNosotros">
         <div class="modal-nosotros-contenido">
             <button class="modal-cerrar" id="btnCerrarNosotros">&times;</button>
@@ -142,6 +145,32 @@
             <p>Curaduría exclusiva de joyería fina y relojería con altos estándares de diseño, resistencia y elegancia atemporal.</p>
             <p>Cada pieza está seleccionada para perdurar y elevar tu estilo diario, combinando metales nobles y acabados impecables.</p>
             <p style="color: #fff; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-top: 20px;">Santa Marta • Colombia</p>
+        </div>
+    </div>
+
+    <!-- VENTANA MODAL FAQ / ENVÍOS -->
+    <div class="modal-overlay" id="modalFaq">
+        <div class="modal-nosotros-contenido" style="max-width: 650px;">
+            <button class="modal-cerrar" id="btnCerrarFaq">&times;</button>
+            <h2 style="font-family: 'Cinzel', serif; margin-bottom: 20px; letter-spacing: 3px;">Preguntas Frecuentes & Envíos</h2>
+            <div class="faq-lista">
+                <div class="faq-item">
+                    <div class="faq-pregunta">¿Cuáles son los tiempos de envío en Santa Marta?</div>
+                    <div class="faq-respuesta">Realizamos entregas directas y seguras en Santa Marta con un tiempo estimado de 24 horas hábiles tras confirmar tu pedido.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-pregunta">¿Cuánto tarda el envío a otras ciudades de Colombia?</div>
+                    <div class="faq-respuesta">Los envíos nacionales a través de transportadoras aliadas toman entre 2 y 4 días hábiles dependiendo de la ciudad de destino.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-pregunta">¿Qué métodos de pago aceptan?</div>
+                    <div class="faq-respuesta">Coordinamos los pagos de forma segura y directa a través de WhatsApp mediante transferencias bancarias o Nequi / Daviplata.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-pregunta">¿Cómo debo cuidar mis piezas de Plata 925 y Acero?</div>
+                    <div class="faq-respuesta">Evita el contacto prolongado con químicos, perfumes o cloro. Para la plata, puedes usar un paño limpiador especializado para devolverle su brillo original.</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -180,6 +209,7 @@
 
         document.addEventListener("DOMContentLoaded", async () => {
             configurarModalNosotros();
+            configurarModalFaq();
             configurarAccesoSecretoAdmin();
             await verificarYRenderizarDrop();
             renderizarSubFiltros("todos");
@@ -339,6 +369,22 @@
             });
         }
 
+        function configurarModalFaq() {
+            const modalFaq = document.getElementById("modalFaq");
+            const btnFaq = document.getElementById("btnFaq");
+            const btnCerrarFaq = document.getElementById("btnCerrarFaq");
+
+            btnFaq.addEventListener("click", (e) => {
+                e.preventDefault();
+                modalFaq.classList.add("activo");
+            });
+
+            btnCerrarFaq.addEventListener("click", () => modalFaq.classList.remove("activo"));
+            modalFaq.addEventListener("click", (e) => {
+                if(e.target === modalFaq) modalFaq.classList.remove("activo");
+            });
+        }
+
         function configurarModal() {
             const modal = document.getElementById("modalDetalle");
             const btnCerrar = document.getElementById("btnCerrarModal");
@@ -424,7 +470,17 @@
             } else {
                 const mensajeWa = `Hola, vengo de la página web y quiero pedir: ${prod.nombre}`;
                 const linkWa = `https://wa.me/${telefonoVestigio}?text=${encodeURIComponent(mensajeWa)}`;
-                contenedorBoton.innerHTML = `<a href="${linkWa}" target="_blank" class="btn-whatsapp" style="display:block; text-align:center; text-decoration:none;">Pedir por WhatsApp</a>`;
+                
+                // Botón de WhatsApp + Botón de Copiar Enlace Directo
+                contenedorBoton.innerHTML = `
+                    <a href="${linkWa}" target="_blank" class="btn-whatsapp" style="display:block; text-align:center; text-decoration:none; margin-bottom: 8px;">Pedir por WhatsApp</a>
+                    <button class="btn-compartir" id="btnCopiarEnlaceProd">Copiar Enlace de este Accesorio</button>
+                `;
+
+                document.getElementById("btnCopiarEnlaceProd").addEventListener("click", () => {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert("¡Enlace del producto copiado al portapapeles!");
+                });
             }
 
             modal.classList.add("activo");
