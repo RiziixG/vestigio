@@ -109,12 +109,10 @@
         </div>
     </main>
 
-    <!-- VENTANA MODAL CON GALERÍA DE FOTOS -->
     <div class="modal-overlay" id="modalDetalle">
         <div class="modal-contenido">
             <button class="modal-cerrar" id="btnCerrarModal">&times;</button>
             
-            <!-- Contenedor del Carrusel / Galería -->
             <div class="galeria-contenedor" id="galeriaContenedor">
                 <img id="modalImg" src="" alt="Detalle" class="galeria-imagen">
                 <div id="controlesGaleria"></div>
@@ -198,7 +196,6 @@
 
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    // Compatibilidad con productos antiguos que solo tenían "imagen" (string)
                     let arrayImgs = data.imagenes || [data.imagen];
                     listaProductosGlobal.push({ id: doc.id, ...data, imagenes: arrayImgs });
                 });
@@ -359,7 +356,6 @@
             });
         }
 
-        // LÓGICA DE LA GALERÍA MULTIFOTO EN EL MODAL
         function abrirModal(prod) {
             const modal = document.getElementById("modalDetalle");
             const imgElemento = document.getElementById("modalImg");
