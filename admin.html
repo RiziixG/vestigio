@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ESTILOS DEL NUEVO LOGIN ESTÉTICO */
         #modalLogin {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(8px);
@@ -43,7 +42,6 @@
         .login-card button:hover { background: #25D366; color: white; }
         .login-error { color: #ff4444; font-size: 11px; margin-top: 12px; letter-spacing: 1px; display: none; }
 
-        /* CONTENIDO DEL PANEL */
         .panel-admin { max-width: 800px; margin: 40px auto; background: #0a0a0a; padding: 30px; border: 1px solid #1a1a1a; border-radius: 8px; }
         .form-grupo { margin-bottom: 20px; }
         .form-fila { display: flex; gap: 15px; } 
@@ -100,7 +98,6 @@
     </style>
 </head>
 <body>
-    <!-- VENTANA MODAL DE LOGIN ESTÉTICO -->
     <div id="modalLogin">
         <div class="login-card">
             <h2>VESTIGIO</h2>
@@ -184,6 +181,7 @@
                         <option value="aretes">Aretes</option>
                         <option value="dijes">Dijes</option>
                         <option value="anillos">Anillos</option>
+                        <option value="conjuntos">Conjuntos</option>
                     </select>
                 </div>
                 <div class="form-grupo" style="display: flex; flex-direction: column; justify-content: flex-end;">
@@ -246,7 +244,6 @@
 
         let productosCache = {};
 
-        // LÓGICA DEL LOGIN ESTÉTICO
         const formLogin = document.getElementById("formLogin");
         const inputPassword = document.getElementById("inputPassword");
         const loginError = document.getElementById("loginError");
@@ -305,6 +302,7 @@
             <option value="aretes">Aretes</option>
             <option value="dijes">Dijes</option>
             <option value="anillos">Anillos</option>
+            <option value="conjuntos">Conjuntos</option>
         `;
         const opcionesRelojes = `
             <option value="casuales">Casuales</option>
