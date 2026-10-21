@@ -74,7 +74,7 @@
 
             <hr class="separador">
 
-            <h2 style="margin-bottom: 25px; font-weight: 300;">Registrar Nueva Joya (Múltiples Fotos)</h2>
+            <h2 style="margin-bottom: 25px; font-weight: 300;">Registrar Nueva Joya (Fotos Individuales)</h2>
             
             <div class="form-grupo">
                 <label>Nombre del Accesorio</label>
@@ -136,10 +136,20 @@
                 </div>
             </div>
 
+            <!-- CAMPOS SEPARADOS PARA CADA FOTO -->
             <div class="form-grupo">
-                <label>Fotos del Producto (Selecciona 1 o varias a la vez)</label>
-                <input type="file" id="imagenesProducto" accept="image/*" multiple>
-                <span style="font-size: 10px; color: #666; display: block; margin-top: 5px;">Mantén presionada la tecla Ctrl (o Shift) al seleccionar las fotos para subir varias.</span>
+                <label>Foto 1 (Principal - Obligatoria)</label>
+                <input type="file" id="foto1" accept="image/*">
+            </div>
+
+            <div class="form-grupo">
+                <label>Foto 2 (Opcional - Detalle o Modelo)</label>
+                <input type="file" id="foto2" accept="image/*">
+            </div>
+
+            <div class="form-grupo">
+                <label>Foto 3 (Opcional - Vista Trasera / Empaque)</label>
+                <input type="file" id="foto3" accept="image/*">
             </div>
 
             <button class="btn-guardar" id="btnGuardar">Registrar Producto en el Sistema</button>
@@ -326,7 +336,6 @@
         document.getElementById("btnGuardar").addEventListener("click", async () => {
             const nombre = document.getElementById("nombreProducto").value;
             const descripcion = document.getElementById("descripcionProducto").value;
-            const precio = document.getElementById("precioProducto5") || document.getElementById("precioProducto").value;
             const precioVal = document.getElementById("precioProducto").value;
             const precioAnterior = document.getElementById("precioAnteriorProducto").value;
             const costo = document.getElementById("costoProducto").value;
@@ -334,11 +343,13 @@
             const categoria = document.getElementById("categoriaProducto").value;
             const subcategoria = document.getElementById("subCategoriaProducto").value;
             const esDrop = document.getElementById("checkEsDrop").checked;
-            const inputArchivos = document.getElementById("imagenesProducto");
-            const archivos = inputArchivos.files;
+            
+            const file1 = document.getElementById("foto1").files[0];
+            const file2 = document.getElementById("foto2").files[0];
+            const file3 = document.getElementById("foto3").files[0];
 
-            if(!nombre || !precioVal || !costo || !cantidad || archivos.length === 0) {
-                mostrarToast("Llena todos los campos obligatorios y selecciona al menos una foto");
+            if(!nombre || !precioVal || !costo || !cantidad || !file1) {
+                mostrarToast("Llena los campos obligatorios y selecciona al menos la Foto 1");
                 return;
             }
 
@@ -347,16 +358,17 @@
 
             try {
                 let urlsImagenes = [];
+                let archivosASubir = [file1, file2, file3].filter(f => f !== undefined);
 
-                for (let i = 0; i < archivos.length; i++) {
-                    btn.innerText = `Subiendo foto ${i + 1} de ${archivos.length}... ⏳`;
+                for (let i = 0; i < archivosASubir.length; i++) {
+                    btn.innerText = `Subiendo foto ${i + 1} de ${archivosASubir.length}... ⏳`;
                     const formData = new FormData();
-                    formData.append("image", archivos[i]);
+                    formData.append("image", archivosASubir[i]);
 
                     const respuestaImgbb = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, { method: 'POST', body: formData });
                     const datosImgbb = await respuestaImgbb.json();
 
-                    if (!datosImgbb.success) throw new Error(`No se pudo subir la imagen ${i + 1}.`);
+                    if (!datosImgbb.success) throw new Error(`No se pudo subir la foto ${i + 1}.`);
                     urlsImagenes.push(datosImgbb.data.url);
                 }
 
@@ -372,7 +384,7 @@
                     categoria: categoria,
                     subcategoria: subcategoria,
                     esDrop: esDrop,
-                    imagenes: urlsImagenes // Guardamos la lista de fotos
+                    imagenes: urlsImagenes
                 });
                 
                 mostrarToast("¡Joya registrada con éxito!");
@@ -384,7 +396,10 @@
                 document.getElementById("costoProducto").value = "";
                 document.getElementById("cantidadProducto").value = "1";
                 document.getElementById("checkEsDrop").checked = false;
-                inputArchivos.value = "";
+                document.getElementById("foto1").value = "";
+                document.getElementById("foto2").value = "";
+                document.getElementById("foto3").value = "";
+                
                 btn.innerText = "Registrar Producto en el Sistema";
                 btn.disabled = false;
 
