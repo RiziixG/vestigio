@@ -23,7 +23,6 @@
         
         .separador { border-color: #1a1a1a; margin: 40px 0; border-style: solid; border-width: 1px 0 0 0; }
         
-        /* ESTILOS PARA LA SECCIÓN DE INVENTARIO Y FINANZAS */
         .tarjeta-inventario { background: #111; padding: 20px; margin-bottom: 20px; border-radius: 6px; border: 1px solid #222; }
         .inventario-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 12px; margin-bottom: 15px; }
         .inventario-header strong { color: #fff; font-size: 16px; font-family: 'Cinzel', serif; }
@@ -168,7 +167,6 @@
 
             <hr class="separador">
             
-            <!-- SECCIÓN DEDICADA DE INVENTARIO Y FINANZAS -->
             <h2 style="margin-bottom: 15px; font-weight: 300;">Auditoría de Inventario y Finanzas</h2>
             <div class="resumen-global-caja" id="resumenGlobalCaja">
                 <h3>Resumen Financiero Global</h3>
@@ -320,7 +318,6 @@
                 document.getElementById("resumenCapital").innerText = `$ ${formatoCO.format(capitalInvertido)}`;
                 document.getElementById("resumenGanancia").innerText = `$ ${formatoCO.format(gananciaProyectada)}`;
 
-                // Eventos de stock y botones
                 document.querySelectorAll(".btn-sumar").forEach(btn => {
                     btn.addEventListener("click", async (e) => {
                         const idProd = e.target.getAttribute("data-id");
